@@ -1,15 +1,18 @@
 /* eslint-disable import/first */
 require('dotenv').config();
+/* eslint-disable import/first */
+import moduleAlias from 'module-alias';
+/* eslint-disable import/first */
+moduleAlias.addAlias('@', __dirname);
 
+import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import moduleAlias from 'module-alias';
 import { createConnection } from 'typeorm';
 
-moduleAlias.addAlias('@', __dirname);
+import schema from '@/api/schema';
 
-import api from '@/api';
 import * as entities from '@/entities';
 import * as middlewares from '@/middlewares';
 
@@ -28,6 +31,7 @@ createConnection({
     console.log('Successfully connected to DB');
 
     const app = express();
+    const server = new ApolloServer({ schema });
 
     app.set('host', process.env.HOST);
     app.set('port', +process.env.PORT);
@@ -35,7 +39,7 @@ createConnection({
     app.use(helmet());
     app.use(cors());
 
-    app.use('/api', api);
+    server.applyMiddleware({ app, path: '/graphql' });
 
     app.use('/*', middlewares.notfound());
 
