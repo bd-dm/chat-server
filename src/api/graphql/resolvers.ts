@@ -1,8 +1,13 @@
+import authSignup from '@/api/graphql/resolvers/auth/signup';
+
 import { IResolvers } from '@graphql-tools/utils';
 
 const resolvers: IResolvers = {
   Query: {
-    books: () => [{ title: 'title', author: 'author' }],
+  },
+  Mutation: {
+    // AUTH
+    authSignup,
   },
 };
 

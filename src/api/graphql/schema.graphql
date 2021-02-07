@@ -1,8 +1,16 @@
 type Query {
-    books: [Book]
+    test: String
 }
 
-type Book {
-    title: String,
-    author: String
+type Mutation {
+    authSignup(userData: UserSignupInput): UserLoginResult
+}
+
+input UserSignupInput {
+    login: String
+    password: String
+}
+
+type UserLoginResult {
+    token: String
 }
