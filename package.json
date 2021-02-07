@@ -6,7 +6,8 @@
     "dev": "nodemon",
     "start": "cross-env NODE_ENV=production node ./dist/",
     "lint": "eslint --ext .tsx --ext .ts --fix ./",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --write .",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
   },
   "dependencies": {
     "@graphql-tools/graphql-file-loader": "^6.2.7",

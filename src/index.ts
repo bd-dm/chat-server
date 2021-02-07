@@ -13,20 +13,9 @@ import { createConnection } from 'typeorm';
 
 import graphql from '@/api/graphql';
 
-import * as entities from '@/entities';
 import * as middlewares from '@/middlewares';
 
-createConnection({
-  type: 'postgres',
-  host: process.env.PGHOST,
-  port: +process.env.PGPORT,
-  username: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  entities: Object.values(entities),
-  synchronize: true,
-  logging: false,
-})
+createConnection()
   .then(() => {
     console.log('Successfully connected to DB');
 
