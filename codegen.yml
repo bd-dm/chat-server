@@ -1,0 +1,10 @@
+overwrite: true
+schema: "http://127.0.0.1:3001/graphql"
+generates:
+  ./generated/graphqlTypes.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+  ./generated/graphql.schema.json:
+    plugins:
+      - "introspection"
