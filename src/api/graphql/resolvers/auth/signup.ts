@@ -1,12 +1,13 @@
-import { MutationResolvers } from '../../../../../generated/graphqlTypes';
+import * as fs from 'fs';
+
+import { MutationResolvers } from '../../../../generated/graphqlTypes';
 
 const authSignup: MutationResolvers['authSignup'] = async (
   root,
   args,
   ctx,
 ) => {
-  console.log('login is', args.userData.login);
-  console.log('ctx', ctx);
+  fs.readFileSync('/does/not/exist');
 
   return {
     token: '123123',

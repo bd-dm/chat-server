@@ -25,10 +25,10 @@ export type Mutation = {
 
 
 export type MutationAuthSignupArgs = {
-  userData?: Maybe<UserSignupInput>;
+  userData?: Maybe<AuthSignupUserDataInput>;
 };
 
-export type UserSignupInput = {
+export type AuthSignupUserDataInput = {
   login?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
 };
@@ -107,7 +107,7 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Mutation: ResolverTypeWrapper<{}>;
-  UserSignupInput: UserSignupInput;
+  AuthSignupUserDataInput: AuthSignupUserDataInput;
   UserLoginResult: ResolverTypeWrapper<UserLoginResult>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 }>;
@@ -117,7 +117,7 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String'];
   Mutation: {};
-  UserSignupInput: UserSignupInput;
+  AuthSignupUserDataInput: AuthSignupUserDataInput;
   UserLoginResult: UserLoginResult;
   Boolean: Scalars['Boolean'];
 }>;

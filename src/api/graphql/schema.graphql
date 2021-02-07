@@ -3,10 +3,10 @@ type Query {
 }
 
 type Mutation {
-    authSignup(userData: UserSignupInput): UserLoginResult
+    authSignup(userData: AuthSignupUserDataInput): UserLoginResult
 }
 
-input UserSignupInput {
+input AuthSignupUserDataInput {
     login: String
     password: String
 }

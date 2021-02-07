@@ -55,7 +55,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "UserSignupInput",
+                  "name": "AuthSignupUserDataInput",
                   "ofType": null
                 },
                 "defaultValue": null
@@ -77,7 +77,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UserSignupInput",
+        "name": "AuthSignupUserDataInput",
         "description": null,
         "fields": null,
         "inputFields": [
