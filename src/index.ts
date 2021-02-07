@@ -11,7 +11,7 @@ import express from 'express';
 import helmet from 'helmet';
 import { createConnection } from 'typeorm';
 
-import schema from '@/api/schema';
+import graphql from '@/api/graphql';
 
 import * as entities from '@/entities';
 import * as middlewares from '@/middlewares';
@@ -31,7 +31,7 @@ createConnection({
     console.log('Successfully connected to DB');
 
     const app = express();
-    const server = new ApolloServer({ schema });
+    const server = new ApolloServer({ schema: graphql });
 
     app.set('host', process.env.HOST);
     app.set('port', +process.env.PORT);

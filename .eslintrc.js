@@ -38,6 +38,7 @@ module.exports = {
           ['^@\\/definitions\\/?\\w'],
           ['^@\\/middlewares\\/?\\w'],
           ['^@\\/api\\/?\\w'],
+          ['^@\\/api\\/graphql\\/?\\w'],
           ['^@\\/services\\/?\\w'],
           ['^@\\/utils\\/?\\w'],
           ['^@\\/configs\\/?\\w'],
