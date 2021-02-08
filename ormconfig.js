@@ -1,13 +1,11 @@
-import * as entities from './src/entities';
-
-export default {
+module.exports = {
   type: 'postgres',
   host: process.env.PGHOST,
   port: +process.env.PGPORT,
   username: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
-  entities: Object.values(entities),
+  entities: ['src/entities/**/*.ts'],
   synchronize: true,
   logging: false,
 };
