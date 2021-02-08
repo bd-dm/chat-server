@@ -1,13 +1,9 @@
-import path from 'path';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 
-import resolvers from '@/api/graphql/resolvers';
+import resolvers from './resolvers';
+import schemas from './schemas';
 
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { loadSchemaSync } from '@graphql-tools/load';
-
-export default loadSchemaSync(path.resolve(__dirname, 'schema.graphql'), { // load from a single schema file
-  loaders: [
-    new GraphQLFileLoader(),
-  ],
+export default makeExecutableSchema({ // load from a single schema file
+  typeDefs: schemas,
   resolvers,
 });

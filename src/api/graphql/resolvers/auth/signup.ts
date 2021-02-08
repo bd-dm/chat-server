@@ -1,17 +1,11 @@
-import * as fs from 'fs';
+import { MutationResolvers } from '@/generated/graphqlTypes';
 
-import { MutationResolvers } from '../../../../generated/graphqlTypes';
-
-const authSignup: MutationResolvers['authSignup'] = async (
+const signup: MutationResolvers['authSignup'] = async (
   root,
   args,
   ctx,
-) => {
-  fs.readFileSync('/does/not/exist');
+) => ({
+  token: '123123',
+});
 
-  return {
-    token: '123123',
-  };
-};
-
-export default authSignup;
+export default signup;

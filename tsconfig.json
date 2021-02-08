@@ -13,16 +13,7 @@
     "baseUrl": ".",
     "sourceMap": true,
     "paths": {
-      "*": ["node_modules/*"],
       "@/*": ["./src/*"],
-      "@/api/*": ["./src/api/*"],
-      "@/api/graphql/*": ["./src/api/graphql/*"],
-      "@/configs/*": ["./src/configs/*"],
-      "@/definitions/*": ["./src/definitions/*"],
-      "@/entities/*": ["./src/entities/*"],
-      "@/middlewares/*": ["./src/middlewares/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/utils/*": ["./src/utils/*"],
     },
     "typeRoots": [
       "./src/definitions/",

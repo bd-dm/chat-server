@@ -1,6 +1,6 @@
 {
   "name": "Chat server GraphQL",
-  "schemaPath": "./src/api/schema.graphql",
+  "schemaPath": "./src/api/graphql/schemas/*.graphql",
   "extensions": {
     "endpoints": {
       "Default GraphQL Endpoint": {

@@ -35,7 +35,7 @@ createConnection()
     app.use(middlewares.error());
 
     app.listen(app.get('port'), () => {
-      console.log(`Successfully loaded. Listening on ${app.get('port')}`);
+      console.log(`Successfully loaded. Listening on http://${app.get('host')}:${app.get('port')}`);
     });
   })
   .catch((e) => {

@@ -13,14 +13,10 @@ export type Scalars = {
   Float: number;
 };
 
-export type Query = {
-  __typename?: 'Query';
-  test?: Maybe<Scalars['String']>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   authSignup?: Maybe<UserLoginResult>;
+  stub?: Maybe<Scalars['String']>;
 };
 
 
@@ -36,6 +32,11 @@ export type AuthSignupUserDataInput = {
 export type UserLoginResult = {
   __typename?: 'UserLoginResult';
   token?: Maybe<Scalars['String']>;
+};
+
+export type Query = {
+  __typename?: 'Query';
+  stub?: Maybe<Scalars['String']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -104,30 +105,27 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
-  Query: ResolverTypeWrapper<{}>;
-  String: ResolverTypeWrapper<Scalars['String']>;
   Mutation: ResolverTypeWrapper<{}>;
+  String: ResolverTypeWrapper<Scalars['String']>;
   AuthSignupUserDataInput: AuthSignupUserDataInput;
   UserLoginResult: ResolverTypeWrapper<UserLoginResult>;
+  Query: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
-  Query: {};
-  String: Scalars['String'];
   Mutation: {};
+  String: Scalars['String'];
   AuthSignupUserDataInput: AuthSignupUserDataInput;
   UserLoginResult: UserLoginResult;
+  Query: {};
   Boolean: Scalars['Boolean'];
-}>;
-
-export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  test?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   authSignup?: Resolver<Maybe<ResolversTypes['UserLoginResult']>, ParentType, ContextType, RequireFields<MutationAuthSignupArgs, never>>;
+  stub?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
 export type UserLoginResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserLoginResult'] = ResolversParentTypes['UserLoginResult']> = ResolversObject<{
@@ -135,10 +133,14 @@ export type UserLoginResultResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  stub?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
-  Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   UserLoginResult?: UserLoginResultResolvers<ContextType>;
+  Query?: QueryResolvers<ContextType>;
 }>;
 
 

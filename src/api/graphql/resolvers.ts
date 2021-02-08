@@ -1,14 +1,9 @@
-import authSignup from '@/api/graphql/resolvers/auth/signup';
+import { mergeResolvers } from '@graphql-tools/merge';
 
-import { IResolvers } from '@graphql-tools/utils';
+import auth from './resolvers/auth';
 
-const resolvers: IResolvers = {
-  Query: {
-  },
-  Mutation: {
-    // AUTH
-    authSignup,
-  },
-};
+const resolvers = [
+  auth,
+];
 
-export default resolvers;
+export default mergeResolvers(resolvers);
