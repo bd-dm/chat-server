@@ -2,7 +2,7 @@
   "name": "chat-server",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "ts-node-dev ./src/index.ts",
     "start": "cross-env NODE_ENV=production ts-node ./src",
     "lint": "eslint --ext .tsx --ext .ts --fix ./",
     "prettify": "prettier --write .",
@@ -52,9 +52,9 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-simple-import-sort": "^5.0.3",
-    "nodemon": "2.0.2",
     "prettier": "^2.0.5",
     "ts-node": "^8.6.2",
+    "ts-node-dev": "^1.1.1",
     "typescript": "^3.9.7"
   }
 }
