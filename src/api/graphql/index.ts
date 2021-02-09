@@ -3,6 +3,8 @@ import path from 'path';
 import { buildSchema } from 'type-graphql';
 import { NonEmptyArray } from 'type-graphql/dist/interfaces/NonEmptyArray';
 
+import { authChecker } from '@/middlewares/authChecker';
+
 import { loadFilesSync } from '@graphql-tools/load-files';
 
 const resolvers = loadFilesSync(
@@ -12,4 +14,5 @@ const resolvers = loadFilesSync(
 
 export default (): Promise<GraphQLSchema> => buildSchema({
   resolvers,
+  authChecker,
 });

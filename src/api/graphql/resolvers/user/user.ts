@@ -1,14 +1,23 @@
-import { Arg, Query, Resolver } from 'type-graphql';
+import {
+  Authorized,
+  Ctx,
+  Query,
+  Resolver,
+} from 'type-graphql';
 
 import UserService from '@/services/UserService';
 
+import { IContext } from '@/definitions';
 import { User } from '@/entities';
 
 @Resolver()
 export default class UserResolver {
-  @Query(() => User)
-  async getUser(@Arg('id') id: string): Promise<User> {
+  @Authorized()
+  @Query(() => User, { nullable: true })
+  async getCurrentUser(@Ctx() ctx: IContext): Promise<User> {
+    const userId = ctx.user.id;
+
     const userService = new UserService();
-    return userService.getById(id);
+    return userService.getById(userId);
   }
 }

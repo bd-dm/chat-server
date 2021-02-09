@@ -1,21 +1,17 @@
-import { MinLength } from 'class-validator';
-import { GraphQLEmail } from 'graphql-custom-types';
+import { IsEmail, MinLength } from 'class-validator';
 import {
-  Args,
-  ArgsType,
-  Field,
-  Mutation,
-  Resolver,
+  Arg, Field, InputType, Mutation, Resolver,
 } from 'type-graphql';
 
 import UserService from '@/services/UserService';
 
-@ArgsType()
-class AuthSignupArgs {
-  @Field(() => GraphQLEmail)
+@InputType()
+class AuthSignupInput {
+  @Field()
+  @IsEmail()
   email: string;
 
-  @Field(() => String)
+  @Field()
   @MinLength(6)
   password: string;
 }
@@ -23,10 +19,10 @@ class AuthSignupArgs {
 @Resolver()
 export default class AuthSignupResolver {
   @Mutation(() => String)
-  async signup(@Args() args: AuthSignupArgs) {
+  async signup(@Arg('data') { email, password }: AuthSignupInput) {
     const userService = new UserService();
-    const userId = await userService.signup(args.email, args.password);
+    const userId = await userService.signup(email, password);
 
-    return 'success';
+    return UserService.getTokenById(userId);
   }
 }

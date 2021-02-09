@@ -10,10 +10,13 @@ import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import express from 'express';
+import expressJwt from 'express-jwt';
 import helmet from 'helmet';
 import { createConnection } from 'typeorm';
 
 import getGraphqlSchema from '@/api/graphql';
+
+import serverConfig from '@/configs/serverConfig';
 
 import * as middlewares from '@/middlewares';
 
@@ -23,7 +26,14 @@ createConnection()
 
     const app = express();
     const schema = await getGraphqlSchema();
-    const server = new ApolloServer({ schema });
+    const server = new ApolloServer({
+      schema,
+      context: ({ req }) => ({
+        req,
+        user: req.user,
+      }),
+    });
+    const serverPath = '/graphql';
 
     app.set('host', process.env.HOST);
     app.set('port', +process.env.PORT);
@@ -31,7 +41,13 @@ createConnection()
     app.use(helmet());
     app.use(cors());
 
-    server.applyMiddleware({ app, path: '/graphql' });
+    app.use(serverPath, expressJwt({
+      secret: serverConfig.jwtAuthSecret,
+      algorithms: ['HS256'],
+      credentialsRequired: false,
+    }));
+
+    server.applyMiddleware({ app, path: serverPath });
 
     app.use('/*', middlewares.notfound());
 

@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { getRepository, Repository } from 'typeorm';
 
 import Service from '@/lib/classes/Service';
@@ -6,6 +7,8 @@ import { ServerError } from '@/lib/utils';
 import PasswordHelper from '@/lib/helpers/PasswordHelper';
 
 import ApiError from '@/lib/utils/ApiError';
+
+import serverConfig from '@/configs/serverConfig';
 
 import { User } from '@/entities';
 
@@ -29,17 +32,31 @@ export default class UserService extends Service<User> {
     return user.id;
   }
 
-  async login(email: string, password: string): Promise<User> {
-    throw ApiError.fromServerError(new ServerError(30));
+  async login(email: string, password: string): Promise<string> {
+    const user = await this.repository.findOne({ email }, { select: ['id', 'email', 'password'] });
+    if (!user) {
+      throw ApiError.fromServerError(new ServerError(30));
+    }
+
+    const isPasswordValid = await PasswordHelper.validate(password, user.password);
+    if (!isPasswordValid) {
+      throw ApiError.fromServerError(new ServerError(30));
+    }
+
+    return UserService.getTokenById(user.id);
   }
 
   async getById(id: string): Promise<User> {
     const user = await this.repository.findOne({ id });
 
     if (!user) {
-      throw ApiError.fromServerError(new ServerError(20));
+      return null;
     }
 
     return user;
+  }
+
+  static getTokenById(id: string) {
+    return jwt.sign({ id }, serverConfig.jwtAuthSecret);
   }
 }
