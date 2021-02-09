@@ -5,9 +5,10 @@ import {
   ArgsType,
   Field,
   Mutation,
-  Query,
   Resolver,
 } from 'type-graphql';
+
+import UserService from '@/services/UserService';
 
 @ArgsType()
 class AuthSignupArgs {
@@ -21,13 +22,11 @@ class AuthSignupArgs {
 
 @Resolver()
 export default class AuthSignupResolver {
-  @Query(() => String)
-  async stub() {
-    return 'stub';
-  }
-
   @Mutation(() => String)
   async signup(@Args() args: AuthSignupArgs) {
+    const userService = new UserService();
+    const userId = await userService.signup(args.email, args.password);
+
     return 'success';
   }
 }
