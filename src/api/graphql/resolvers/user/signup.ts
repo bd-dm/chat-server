@@ -6,7 +6,7 @@ import {
 import UserService from '@/services/UserService';
 
 @InputType()
-class AuthSignupInput {
+class UserSignupInput {
   @Field()
   @IsEmail()
   email: string;
@@ -17,9 +17,9 @@ class AuthSignupInput {
 }
 
 @Resolver()
-export default class AuthSignupResolver {
+export default class UserSignupResolver {
   @Mutation(() => String)
-  async signup(@Arg('data') { email, password }: AuthSignupInput) {
+  async signup(@Arg('data') { email, password }: UserSignupInput) {
     const userService = new UserService();
     const userId = await userService.signup(email, password);
 

@@ -5,7 +5,7 @@ import {
 import UserService from '@/services/UserService';
 
 @InputType()
-class AuthLoginInput {
+class UserLoginInput {
   @Field()
   email: string;
 
@@ -14,9 +14,9 @@ class AuthLoginInput {
 }
 
 @Resolver()
-export default class AuthLoginResolver {
+export default class UserLoginResolver {
   @Query(() => String)
-  async login(@Arg('data') { email, password }: AuthLoginInput) {
+  async login(@Arg('data') { email, password }: UserLoginInput) {
     const userService = new UserService();
     return userService.login(email, password);
   }
