@@ -29,6 +29,10 @@ export default class UserService extends Service<User> {
     return user.id;
   }
 
+  async login(email: string, password: string): Promise<User> {
+    throw ApiError.fromServerError(new ServerError(30));
+  }
+
   async getById(id: string): Promise<User> {
     const user = await this.repository.findOne({ id });
 

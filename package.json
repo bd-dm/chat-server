@@ -2,7 +2,7 @@
   "name": "chat-server",
   "version": "1.0.0",
   "scripts": {
-    "dev": "ts-node-dev ./src/index.ts",
+    "dev": "ts-node-dev ./src/index.ts --ignore-watch node_modules --no-deps --no-notify --respawn --transpile-only",
     "start": "cross-env NODE_ENV=production ts-node ./src",
     "lint": "eslint --ext .tsx --ext .ts --fix ./",
     "prettify": "prettier --write .",
