@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "target": "esnext",
+    "lib": ["esnext", "esnext.asynciterable"],
     "noImplicitAny": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,

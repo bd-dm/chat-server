@@ -7,5 +7,5 @@ module.exports = {
   database: process.env.PGDATABASE,
   entities: ['src/entities/**/*.ts'],
   synchronize: true,
-  logging: false,
+  logging: true,
 };

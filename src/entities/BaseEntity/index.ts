@@ -1,11 +1,11 @@
-import * as joi from 'joi';
 import {
+  BaseEntity,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-export abstract class BaseEnity {
+export abstract class BaseEnity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -15,9 +15,3 @@ export abstract class BaseEnity {
   @UpdateDateColumn({ update: false })
   updatedAt: string | Date;
 }
-
-export const baseSchema = {
-  id: joi.string().optional(),
-  createdAt: joi.string().optional(),
-  updatedAt: joi.string().optional(),
-};

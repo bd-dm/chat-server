@@ -1,9 +1,10 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
+import { GraphQLSchema } from 'graphql';
+import { buildSchema } from 'type-graphql';
 
-import resolvers from './resolvers';
-import schemas from './schemas';
+import AuthResolver from '@/api/graphql/resolvers/auth';
 
-export default makeExecutableSchema({ // load from a single schema file
-  typeDefs: schemas,
-  resolvers,
+export default (): Promise<GraphQLSchema> => buildSchema({
+  resolvers: [
+    AuthResolver,
+  ],
 });

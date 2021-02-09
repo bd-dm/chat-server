@@ -5,22 +5,25 @@ import moduleAlias from 'module-alias';
 /* eslint-disable import/first */
 moduleAlias.addAlias('@', __dirname);
 
+import 'reflect-metadata';
+
 import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { createConnection } from 'typeorm';
 
-import graphql from '@/api/graphql';
+import getGraphqlSchema from '@/api/graphql';
 
 import * as middlewares from '@/middlewares';
 
 createConnection()
-  .then(() => {
+  .then(async () => {
     console.log('Successfully connected to DB');
 
     const app = express();
-    const server = new ApolloServer({ schema: graphql });
+    const schema = await getGraphqlSchema();
+    const server = new ApolloServer({ schema });
 
     app.set('host', process.env.HOST);
     app.set('port', +process.env.PORT);

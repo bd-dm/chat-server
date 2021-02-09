@@ -2,8 +2,5 @@
   "ignore": ["**/*.test.ts", "**/*.spec.ts"],
   "watch": ["src"],
   "exec": "cross-env NODE_ENV=development ts-node ./src",
-  "ext": "ts,graphql",
-  "events": {
-    "restart": "npm run generate-graphql"
-  }
+  "ext": "ts,graphql"
 }
