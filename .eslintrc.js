@@ -21,6 +21,7 @@ module.exports = {
     'no-underscore-dangle': 0,
     'no-unused-vars': 0,
     '@typescript-eslint/no-unused-vars': 1,
+    'import/no-extraneous-dependencies': 0,
     'no-use-before-define': 0,
     'implicit-arrow-linebreak': 0,
     'no-useless-constructor': 0,

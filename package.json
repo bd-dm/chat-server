@@ -6,7 +6,9 @@
     "start": "cross-env NODE_ENV=production ts-node ./src",
     "lint": "eslint --ext .tsx --ext .ts --fix ./",
     "prettify": "prettier --write .",
-    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "test:dbSetup": "ts-node __test-utils__/setup.ts",
+    "test": "npm run test:dbSetup && jest"
   },
   "dependencies": {
     "@graphql-tools/load-files": "^6.2.5",
@@ -37,8 +39,10 @@
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.3",
     "@types/express-jwt": "^6.0.0",
+    "@types/faker": "^5.1.6",
     "@types/graphql": "^14.5.0",
     "@types/helmet": "0.0.45",
+    "@types/jest": "^26.0.20",
     "@types/jsonwebtoken": "^8.3.8",
     "@types/module-alias": "^2.0.0",
     "@types/node": "^14.0.27",
@@ -53,8 +57,11 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-simple-import-sort": "^5.0.3",
+    "faker": "^5.3.1",
+    "jest": "^26.6.3",
     "nodemon": "^2.0.7",
     "prettier": "^2.0.5",
+    "ts-jest": "^26.5.1",
     "ts-node": "^8.6.2",
     "typescript": "^3.9.7"
   }

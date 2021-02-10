@@ -1,10 +1,5 @@
-/* eslint-disable import/first */
-require('dotenv').config();
-/* eslint-disable import/first */
-import moduleAlias from 'module-alias';
-/* eslint-disable import/first */
-moduleAlias.addAlias('@', __dirname);
-
+import '../dotenv';
+import '../alias';
 import 'reflect-metadata';
 
 import { ApolloServer } from 'apollo-server-express';
