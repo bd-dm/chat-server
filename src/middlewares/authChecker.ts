@@ -5,7 +5,7 @@ import UserService from '@/services/UserService';
 import { IContext } from '@/definitions';
 
 export const authChecker: AuthChecker<IContext> = async ({ context }) => {
-  if (!context.user) {
+  if (!context?.user) {
     return false;
   }
 
