@@ -38,7 +38,7 @@ export class UserSignupInput {
 @Resolver()
 export default class UserResolver {
   @Mutation(() => String)
-  async signup(@Arg('data') { email, password }: UserSignupInput) {
+  async userSignup(@Arg('data') { email, password }: UserSignupInput) {
     const userService = new UserService();
     const userId = await userService.signup(email, password);
 
@@ -46,14 +46,14 @@ export default class UserResolver {
   }
 
   @Query(() => String)
-  async login(@Arg('data') { email, password }: UserLoginInput) {
+  async userLogin(@Arg('data') { email, password }: UserLoginInput) {
     const userService = new UserService();
     return userService.login(email, password);
   }
 
   @Authorized()
   @Query(() => User, { nullable: true })
-  async getCurrentUser(@Ctx() ctx: IContext): Promise<User> {
+  async userGetCurrent(@Ctx() ctx: IContext): Promise<User> {
     const userId = ctx.user.id;
 
     const userService = new UserService();

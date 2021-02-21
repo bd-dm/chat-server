@@ -6,7 +6,7 @@ import {
   Column,
   Entity,
   JoinTable,
-  ManyToMany, OneToMany,
+  ManyToMany, OneToMany, RelationId,
 } from 'typeorm';
 
 import { BaseEntity, ChatMessage, User } from '@/entities';
@@ -18,10 +18,16 @@ export class ChatRoom extends BaseEntity {
   @Column()
   name: string;
 
+  @RelationId((chatRoom: ChatRoom) => chatRoom.users)
+  usersIds: string[]
+
   @Field(() => [User])
   @ManyToMany(() => User, (user) => user.chatRooms)
   @JoinTable()
   users: User[];
+
+  @RelationId((chatRoom: ChatRoom) => chatRoom.chatMessages)
+  chatMessageIds: string[]
 
   @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.chatRoom)
   chatMessages: ChatMessage[];

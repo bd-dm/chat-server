@@ -17,6 +17,14 @@ export default class UserService extends Service<User> {
     super(repository);
   }
 
+  static getTokenById(id: string) {
+    return jwt.sign({ id }, serverConfig.jwtAuthSecret);
+  }
+
+  async getByIds(ids: string[]): Promise<User[]> {
+    return this.repository.findByIds(ids);
+  }
+
   async signup(email: string, password: string): Promise<string> {
     const passwordHash = await PasswordHelper.encrypt(password);
 
@@ -54,9 +62,5 @@ export default class UserService extends Service<User> {
     }
 
     return user;
-  }
-
-  static getTokenById(id: string) {
-    return jwt.sign({ id }, serverConfig.jwtAuthSecret);
   }
 }
