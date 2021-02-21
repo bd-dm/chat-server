@@ -4,14 +4,14 @@ import {
   ObjectType,
 } from 'type-graphql';
 import {
-  BaseEntity,
+  BaseEntity as OrmBaseEntity,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @ObjectType()
-export abstract class BaseEnity extends BaseEntity {
+export abstract class BaseEntity extends OrmBaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
