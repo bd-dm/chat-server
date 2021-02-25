@@ -1,5 +1,6 @@
 type Query {
-  chatGetList: [ChatRoom!]!
+  chatList: [ChatRoom!]!
+  chatMessageList(data: ChatMessageListInput!): ChatMessage!
   userLogin(data: UserLoginInput!): String!
   userGetCurrent: User
 }
@@ -43,6 +44,10 @@ type ChatMessage {
   chatRoom: ChatRoom!
 }
 
+input ChatMessageListInput {
+  chatRoomId: String!
+}
+
 input UserLoginInput {
   email: String!
   password: String!
@@ -50,7 +55,7 @@ input UserLoginInput {
 
 type Mutation {
   chatCreate(data: ChatCreateInput!): ChatRoom!
-  chatSendMessage(data: ChatSendMessageInput!): ChatMessage!
+  chatMessageSend(data: ChatMessageSendInput!): ChatMessage!
   userSignup(data: UserSignupInput!): String!
 }
 
@@ -59,7 +64,7 @@ input ChatCreateInput {
   userIds: [String!]!
 }
 
-input ChatSendMessageInput {
+input ChatMessageSendInput {
   chatRoomId: String!
   text: String!
 }

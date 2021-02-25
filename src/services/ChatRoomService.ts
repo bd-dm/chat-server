@@ -162,4 +162,28 @@ export default class ChatRoomService extends Service<ChatRoom> {
 
     return qb.getMany();
   }
+
+  async hasUserRights(userId: string, chatRoomId: string): Promise<boolean> {
+    const qb = this.repository
+      .createQueryBuilder('chatRoom')
+      .leftJoin(
+        'chatRoom.userToChatRooms',
+        'userToChatRoom',
+      )
+      .where({ id: chatRoomId })
+      .select([
+        'chatRoom.id',
+        'userToChatRoom.userId',
+      ]);
+
+    const room = await qb.getOne();
+
+    if (!room) {
+      return false;
+    }
+
+    const roomUserIds = room.userToChatRooms?.map((userToChatRoom) => userToChatRoom.userId);
+
+    return roomUserIds.includes(userId);
+  }
 }

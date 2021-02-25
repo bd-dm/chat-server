@@ -1,8 +1,18 @@
 import {
-  ArrayMinSize, IsString, IsUUID, MinLength,
+  ArrayMinSize,
+  IsString,
+  IsUUID,
+  MinLength,
 } from 'class-validator';
 import {
-  Arg, Authorized, Ctx, Field, InputType, Mutation, Query, Resolver,
+  Arg,
+  Authorized,
+  Ctx,
+  Field,
+  InputType,
+  Mutation,
+  Query,
+  Resolver,
 } from 'type-graphql';
 
 import { IUserToChatRoomRole } from '@/entities/User/UserToChatRoom';
@@ -26,7 +36,7 @@ export class ChatCreateInput {
 }
 
 @InputType()
-export class ChatSendMessageInput {
+export class ChatMessageSendInput {
   @Field()
   @IsUUID()
   chatRoomId: string;
@@ -36,11 +46,18 @@ export class ChatSendMessageInput {
   text: string;
 }
 
+@InputType()
+export class ChatMessageListInput {
+  @Field()
+  @IsUUID()
+  chatRoomId: string;
+}
+
 @Resolver()
 export default class ChatResolver {
   @Authorized()
   @Query(() => [ChatRoom])
-  async chatGetList(@Ctx() ctx: IContext) {
+  async chatList(@Ctx() ctx: IContext) {
     const chatRoomService = new ChatRoomService();
     return chatRoomService.getByUser(ctx.user.id);
   }
@@ -73,11 +90,21 @@ export default class ChatResolver {
 
   @Authorized()
   @Mutation(() => ChatMessage)
-  async chatSendMessage(
-    @Arg('data') data: ChatSendMessageInput,
+  async chatMessageSend(
+    @Arg('data') data: ChatMessageSendInput,
     @Ctx() ctx: IContext,
   ): Promise<ChatMessage> {
     const chatMessageService = new ChatMessageService();
     return chatMessageService.create(ctx.user.id, data);
+  }
+
+  @Authorized()
+  @Query(() => [ChatMessage])
+  async chatMessageList(
+    @Arg('data') data: ChatMessageListInput,
+    @Ctx() ctx: IContext,
+  ): Promise<ChatMessage[]> {
+    const chatMessageService = new ChatMessageService();
+    return chatMessageService.list(ctx.user.id, data.chatRoomId);
   }
 }
