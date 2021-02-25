@@ -7,6 +7,11 @@ import {
 
 import { BaseEntity, ChatRoom, User } from '@/entities';
 
+export enum IUserToChatRoomRole {
+  CREATOR = 'CREATOR',
+  MEMBER = 'MEMBER',
+}
+
 @ObjectType()
 @Entity()
 export class UserToChatRoom extends BaseEntity {
@@ -17,6 +22,10 @@ export class UserToChatRoom extends BaseEntity {
   @Field(() => String)
   @Column()
   chatRoomId: string;
+
+  @Field(() => String)
+  @Column({ default: IUserToChatRoomRole.MEMBER })
+  role: IUserToChatRoomRole;
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.userToChatRooms)

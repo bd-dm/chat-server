@@ -11,7 +11,7 @@ import {
 
 import { UserToChatRoom } from '@/entities/User/UserToChatRoom';
 
-import { BaseEntity, ChatMessage } from '@/entities';
+import { BaseEntity, ChatMessage, User } from '@/entities';
 
 @ObjectType()
 @Entity()
@@ -20,9 +20,13 @@ export class ChatRoom extends BaseEntity {
   @Column()
   name: string;
 
-  @Field(() => [UserToChatRoom])
   @OneToMany(() => UserToChatRoom, (userToChatRoom) => userToChatRoom.chatRoom)
   userToChatRooms?: UserToChatRoom[];
+
+  @Field(() => [User])
+  users(): User[] {
+    return this.userToChatRooms.map((userToChatRooms) => userToChatRooms.user);
+  }
 
   @Field(() => [String])
   @RelationId((chatRoom: ChatRoom) => chatRoom.chatMessages)

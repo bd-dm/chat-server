@@ -10,7 +10,10 @@ import {
   TransactionManager,
 } from 'typeorm';
 
-import { UserToChatRoom } from '@/entities/User/UserToChatRoom';
+import {
+  IUserToChatRoomRole,
+  UserToChatRoom,
+} from '@/entities/User/UserToChatRoom';
 
 import Service from '@/lib/classes/Service';
 import { ServerError } from '@/lib/utils';
@@ -20,6 +23,11 @@ import ApiError from '@/lib/utils/ApiError';
 import UserService from '@/services/UserService';
 
 import { ChatRoom } from '@/entities';
+
+export interface IChatRoomCreateUser {
+  id: string,
+  role: IUserToChatRoomRole
+}
 
 export default class ChatRoomService extends Service<ChatRoom> {
   constructor(repository: Repository<ChatRoom> = getRepository(ChatRoom)) {
@@ -77,11 +85,11 @@ export default class ChatRoomService extends Service<ChatRoom> {
   @Transaction()
   async create(
     data: DeepPartial<ChatRoom>,
-    userIds: string[],
+    userList: IChatRoomCreateUser[],
     @TransactionManager() manager: EntityManager = getManager(),
   ): Promise<ChatRoom> {
     const userService = new UserService();
-    const users = await userService.getByIds(userIds);
+    const users = await userService.getByIds(userList.map((user) => user.id));
 
     if (users.length < 2) {
       throw ApiError.fromServerError(new ServerError(40));
@@ -92,9 +100,10 @@ export default class ChatRoomService extends Service<ChatRoom> {
     const chatRoomResult = await manager.save(chatRoomEntity);
 
     // Добавляем в комнату пользователей
-    const userToChatRooms = users.map((user) => ({
+    const userToChatRooms: Partial<UserToChatRoom>[] = users.map((user) => ({
       user,
       chatRoom: chatRoomResult,
+      role: userList.find((el) => el.id === user.id).role,
     }));
     const userToChatRoomEntities = manager.create(UserToChatRoom, userToChatRooms);
     await manager.save(userToChatRoomEntities);
@@ -132,6 +141,7 @@ export default class ChatRoomService extends Service<ChatRoom> {
         'userToChatRoom.createdAt',
         'userToChatRoom.updatedAt',
         'userToChatRoom.userId',
+        'userToChatRoom.role',
         'userToChatRoomUser.id',
         'userToChatRoomUser.createdAt',
         'userToChatRoomUser.updatedAt',

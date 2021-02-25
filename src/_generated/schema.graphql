@@ -9,17 +9,9 @@ type ChatRoom {
   createdAt: String!
   updatedAt: String!
   name: String!
-  userToChatRooms: [UserToChatRoom!]!
+  users: [User!]!
   chatMessageIds: [String!]!
   chatMessages: [ChatMessage!]!
-}
-
-type UserToChatRoom {
-  id: ID!
-  userId: String!
-  chatRoomId: String!
-  user: User!
-  chatRoom: ChatRoom!
 }
 
 type User {
@@ -29,6 +21,17 @@ type User {
   email: String!
   userToChatRooms: [UserToChatRoom!]!
   chatMessages: [ChatMessage!]!
+}
+
+type UserToChatRoom {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  userId: String!
+  chatRoomId: String!
+  role: String!
+  user: User!
+  chatRoom: ChatRoom!
 }
 
 type ChatMessage {
