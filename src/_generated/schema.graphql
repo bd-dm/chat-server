@@ -1,5 +1,5 @@
 type Query {
-  chatRoomGetList: [ChatRoom!]!
+  chatGetList: [ChatRoom!]!
   userLogin(data: UserLoginInput!): String!
   userGetCurrent: User
 }
@@ -50,11 +50,11 @@ input UserLoginInput {
 }
 
 type Mutation {
-  chatRoomCreate(data: ChatRoomCreateInput!): ChatRoom!
+  chatCreate(data: ChatCreateInput!): ChatRoom!
   userSignup(data: UserSignupInput!): String!
 }
 
-input ChatRoomCreateInput {
+input ChatCreateInput {
   name: String!
   userIds: [String!]!
 }

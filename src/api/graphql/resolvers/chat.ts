@@ -11,7 +11,7 @@ import { IContext } from '@/definitions';
 import { ChatRoom } from '@/entities';
 
 @InputType()
-export class ChatRoomCreateInput {
+export class ChatCreateInput {
   @Field()
   @MinLength(3)
   name: string;
@@ -23,17 +23,17 @@ export class ChatRoomCreateInput {
 }
 
 @Resolver()
-export default class ChatRoomResolver {
+export default class ChatResolver {
   @Authorized()
   @Query(() => [ChatRoom])
-  async chatRoomGetList(@Ctx() ctx: IContext) {
+  async chatGetList(@Ctx() ctx: IContext) {
     const chatRoomService = new ChatRoomService();
     return chatRoomService.getByUser(ctx.user.id);
   }
 
   @Authorized()
   @Mutation(() => ChatRoom)
-  async chatRoomCreate(@Arg('data') data: ChatRoomCreateInput, @Ctx() ctx: IContext): Promise<ChatRoom> {
+  async chatCreate(@Arg('data') data: ChatCreateInput, @Ctx() ctx: IContext): Promise<ChatRoom> {
     const chatRoomService = new ChatRoomService();
 
     const userList = [
