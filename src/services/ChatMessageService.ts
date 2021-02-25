@@ -38,6 +38,7 @@ export default class ChatMessageService extends Service<ChatMessage> {
         'author.updatedAt',
         'author.email',
       ])
+      .addOrderBy('chatMessage.createdAt', 'ASC')
       .getMany();
   }
 
