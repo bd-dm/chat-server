@@ -9,11 +9,17 @@ type ChatRoom {
   createdAt: String!
   updatedAt: String!
   name: String!
+  userToChatRooms: [UserToChatRoom!]!
+  chatMessageIds: [String!]!
+  chatMessages: [ChatMessage!]!
 }
 
-input UserLoginInput {
-  email: String!
-  password: String!
+type UserToChatRoom {
+  id: ID!
+  userId: String!
+  chatRoomId: String!
+  user: User!
+  chatRoom: ChatRoom!
 }
 
 type User {
@@ -21,6 +27,23 @@ type User {
   createdAt: String!
   updatedAt: String!
   email: String!
+  userToChatRooms: [UserToChatRoom!]!
+  chatMessages: [ChatMessage!]!
+}
+
+type ChatMessage {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  text: String!
+  author: User!
+  chatRoom: ChatRoom!
+}
+
+input UserLoginInput {
+  email: String!
+  password: String!
 }
 
 type Mutation {

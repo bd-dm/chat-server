@@ -1,23 +1,29 @@
 import { Field, ObjectType } from 'type-graphql';
 import {
-  Column, Entity, ManyToMany, OneToMany,
+  Column,
+  Entity,
+  OneToMany,
 } from 'typeorm';
 
-import { BaseEntity, ChatMessage, ChatRoom } from '@/entities';
+import { UserToChatRoom } from '@/entities/User/UserToChatRoom';
+
+import { BaseEntity, ChatMessage } from '@/entities';
 
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-  @Field()
+  @Field(() => String)
   @Column({ unique: true })
   email: string;
 
   @Column()
   password: string;
 
-  @ManyToMany(() => ChatRoom, (chatRoom) => chatRoom.users)
-  chatRooms: ChatRoom;
+  @Field(() => [UserToChatRoom])
+  @OneToMany(() => UserToChatRoom, (userToChatRoom) => userToChatRoom.user)
+  userToChatRooms?: UserToChatRoom[];
 
+  @Field(() => [ChatMessage])
   @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.author)
-  chatMessages: ChatRoom;
+  chatMessages?: ChatMessage[];
 }

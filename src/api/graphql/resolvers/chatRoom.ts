@@ -36,16 +36,18 @@ export default class ChatRoomResolver {
   @Query(() => [ChatRoom])
   async chatRoomGetList(@Ctx() ctx: IContext) {
     const chatRoomService = new ChatRoomService();
-    return chatRoomService.getUserChatRooms(ctx.user.id);
+    return chatRoomService.getByUser(ctx.user.id);
   }
 
   @Authorized()
   @Mutation(() => ChatRoom)
   async chatRoomCreate(@Arg('data') data: ChatRoomCreateInput, @Ctx() ctx: IContext): Promise<ChatRoom> {
     const chatRoomService = new ChatRoomService();
-    return chatRoomService.create(data, [
+    const chatRoomBasic = await chatRoomService.create(data, [
       ctx.user.id,
       ...data.userIds,
     ]);
+
+    return chatRoomService.get(chatRoomBasic.id);
   }
 }

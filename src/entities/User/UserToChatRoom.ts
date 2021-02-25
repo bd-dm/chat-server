@@ -1,7 +1,4 @@
-import {
-  Field,
-  ObjectType,
-} from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import {
   Column,
   Entity,
@@ -12,20 +9,20 @@ import { BaseEntity, ChatRoom, User } from '@/entities';
 
 @ObjectType()
 @Entity()
-export class ChatMessage extends BaseEntity {
+export class UserToChatRoom extends BaseEntity {
   @Field(() => String)
   @Column()
-  name: string;
+  userId: string;
 
   @Field(() => String)
   @Column()
-  text: string;
+  chatRoomId: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.chatMessages)
-  author?: User;
+  @ManyToOne(() => User, (user) => user.userToChatRooms)
+  user?: User;
 
   @Field(() => ChatRoom)
-  @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.chatMessages)
+  @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.userToChatRooms)
   chatRoom?: ChatRoom;
 }
