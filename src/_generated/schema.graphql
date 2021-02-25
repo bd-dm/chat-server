@@ -1,0 +1,39 @@
+type Query {
+  chatRoomGetList: [ChatRoom!]!
+  userLogin(data: UserLoginInput!): String!
+  userGetCurrent: User
+}
+
+type ChatRoom {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+}
+
+input UserLoginInput {
+  email: String!
+  password: String!
+}
+
+type User {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  email: String!
+}
+
+type Mutation {
+  chatRoomCreate(data: ChatRoomCreateInput!): ChatRoom!
+  userSignup(data: UserSignupInput!): String!
+}
+
+input ChatRoomCreateInput {
+  name: String!
+  userIds: [String!]!
+}
+
+input UserSignupInput {
+  email: String!
+  password: String!
+}
