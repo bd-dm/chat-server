@@ -38,7 +38,6 @@ type ChatMessage {
   id: ID!
   createdAt: String!
   updatedAt: String!
-  name: String!
   text: String!
   author: User!
   chatRoom: ChatRoom!
@@ -51,12 +50,18 @@ input UserLoginInput {
 
 type Mutation {
   chatCreate(data: ChatCreateInput!): ChatRoom!
+  chatSendMessage(data: ChatSendMessageInput!): ChatMessage!
   userSignup(data: UserSignupInput!): String!
 }
 
 input ChatCreateInput {
   name: String!
   userIds: [String!]!
+}
+
+input ChatSendMessageInput {
+  chatRoomId: String!
+  text: String!
 }
 
 input UserSignupInput {

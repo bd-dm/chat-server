@@ -41,27 +41,26 @@ export default class ChatRoomService extends Service<ChatRoom> {
     )
       .leftJoin(
         'userToChatRoom.user',
-        'userToChatRoomUser',
+        'user',
       )
       .leftJoin(
         'chatRoom.chatMessages',
-        'chatMessages',
+        'chatMessage',
       )
       .addSelect([
         'userToChatRoom.id',
         'userToChatRoom.createdAt',
         'userToChatRoom.updatedAt',
         'userToChatRoom.userId',
-        'userToChatRoomUser.id',
-        'userToChatRoomUser.createdAt',
-        'userToChatRoomUser.updatedAt',
-        'userToChatRoomUser.email',
-        'chatMessages.id',
-        'chatMessages.createdAt',
-        'chatMessages.updatedAt',
-        'chatMessages.name',
-        'chatMessages.text',
-        'chatMessages.author',
+        'user.id',
+        'user.createdAt',
+        'user.updatedAt',
+        'user.email',
+        'chatMessage.id',
+        'chatMessage.createdAt',
+        'chatMessage.updatedAt',
+        'chatMessage.text',
+        'chatMessage.author',
       ]);
   }
 
@@ -126,11 +125,15 @@ export default class ChatRoomService extends Service<ChatRoom> {
       )
       .leftJoin(
         'userToChatRoom.user',
-        'userToChatRoomUser',
+        'user',
       )
       .leftJoin(
         'chatRoom.chatMessages',
-        'chatMessages',
+        'chatMessage',
+      )
+      .leftJoin(
+        'chatMessage.author',
+        'chatMessageAuthor',
       )
       .addSelect([
         'chatRoom.id',
@@ -142,16 +145,19 @@ export default class ChatRoomService extends Service<ChatRoom> {
         'userToChatRoom.updatedAt',
         'userToChatRoom.userId',
         'userToChatRoom.role',
-        'userToChatRoomUser.id',
-        'userToChatRoomUser.createdAt',
-        'userToChatRoomUser.updatedAt',
-        'userToChatRoomUser.email',
-        'chatMessages.id',
-        'chatMessages.createdAt',
-        'chatMessages.updatedAt',
-        'chatMessages.name',
-        'chatMessages.text',
-        'chatMessages.author',
+        'user.id',
+        'user.createdAt',
+        'user.updatedAt',
+        'user.email',
+        'chatMessageAuthor.id',
+        'chatMessageAuthor.createdAt',
+        'chatMessageAuthor.updatedAt',
+        'chatMessageAuthor.email',
+        'chatMessage.id',
+        'chatMessage.createdAt',
+        'chatMessage.updatedAt',
+        'chatMessage.text',
+        'chatMessage.author',
       ]);
 
     return qb.getMany();
