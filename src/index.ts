@@ -2,16 +2,14 @@ import '../dotenv';
 import '../alias';
 import 'reflect-metadata';
 
-import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import express from 'express';
-import expressJwt from 'express-jwt';
 import helmet from 'helmet';
+import { createServer } from 'http';
 import { createConnection } from 'typeorm';
 
-import getGraphqlSchema from '@/api/graphql';
-
-import serverConfig from '@/configs/serverConfig';
+import initApolloServer from '@/api/apollo';
+import initSocketIO from '@/api/sockets';
 
 import * as middlewares from '@/middlewares';
 
@@ -20,15 +18,7 @@ const main = async () => {
   console.log(`Successfully connected to DB ${connection.name}`);
 
   const app = express();
-  const schema = await getGraphqlSchema();
-  const server = new ApolloServer({
-    schema,
-    context: ({ req }) => ({
-      req,
-      user: req.user,
-    }),
-  });
-  const serverPath = '/graphql';
+  const httpServer = createServer(app);
 
   app.set('host', process.env.HOST);
   app.set('port', +process.env.PORT);
@@ -36,21 +26,15 @@ const main = async () => {
   app.use(helmet());
   app.use(cors());
 
-  app.use(serverPath, expressJwt({
-    secret: serverConfig.jwtAuthSecret,
-    algorithms: ['HS256'],
-    credentialsRequired: false,
-  }));
-
-  server.applyMiddleware({ app, path: serverPath });
+  await initApolloServer(app);
+  await initSocketIO(httpServer);
 
   app.use('/*', middlewares.notfound());
-
   app.use(middlewares.error());
 
-  app.listen(app.get('port'), () => {
+  httpServer.listen(app.get('port'), () => {
     console.log(`Successfully loaded. Listening on http://${app.get('host')}:${app.get('port')}`);
   });
 };
 
-main();
+main().then();
