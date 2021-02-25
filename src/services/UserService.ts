@@ -21,6 +21,10 @@ export default class UserService extends Service<User> {
     return jwt.sign({ id }, serverConfig.jwtAuthSecret);
   }
 
+  static decodeToken(token: string) {
+    return jwt.verify(token, serverConfig.jwtAuthSecret);
+  }
+
   async getByIds(ids: string[]): Promise<User[]> {
     return this.repository.findByIds(ids);
   }
@@ -62,5 +66,9 @@ export default class UserService extends Service<User> {
     }
 
     return user;
+  }
+
+  async updateSocketId(userId: string, socketId: string): Promise<void> {
+    await this.repository.update({ id: userId }, { socketId });
   }
 }

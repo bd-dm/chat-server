@@ -19,6 +19,9 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  socketId?: string;
+
   @Field(() => [UserToChatRoom])
   @OneToMany(() => UserToChatRoom, (userToChatRoom) => userToChatRoom.user)
   userToChatRooms?: UserToChatRoom[];
