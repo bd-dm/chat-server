@@ -15,10 +15,14 @@ import {
   UserToChatRoom,
 } from '@/entities/User/UserToChatRoom';
 
+import { ISocketEvents } from '@/definitions/socket';
+
 import Service from '@/lib/classes/Service';
 import { ServerError } from '@/lib/utils';
 
 import ApiError from '@/lib/utils/ApiError';
+
+import SocketServer from '@/api/sockets';
 
 import UserService from '@/services/UserService';
 
@@ -106,6 +110,15 @@ export default class ChatRoomService extends Service<ChatRoom> {
     }));
     const userToChatRoomEntities = manager.create(UserToChatRoom, userToChatRooms);
     await manager.save(userToChatRoomEntities);
+
+    // Оповещаем сокеты пользователей
+    const socketIds = await userService.getSocketIds(userList.map((user) => user.id));
+    for (let i = 0; i < socketIds.length; i++) {
+      SocketServer
+        .getInstance()
+        .to(socketIds[i].socketId)
+        .emit(ISocketEvents.CHAT_NEW_ROOM, chatRoomResult);
+    }
 
     return chatRoomResult;
   }
