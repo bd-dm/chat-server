@@ -42,7 +42,7 @@ export class ChatMessageSendInput {
   chatRoomId: string;
 
   @Field()
-  @MinLength(3)
+  @MinLength(1)
   text: string;
 }
 

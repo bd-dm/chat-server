@@ -1,4 +1,4 @@
-import { getRepository, Repository } from 'typeorm';
+import { getRepository, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { ISocketEvents } from '@/definitions/socket';
 
@@ -19,6 +19,38 @@ export default class ChatMessageService extends Service<ChatMessage> {
     super(repository);
   }
 
+  static exposeRelations(
+    builder: SelectQueryBuilder<ChatMessage>,
+  ): SelectQueryBuilder<ChatMessage> {
+    return builder
+      .leftJoin(
+        'chatMessage.author',
+        'author',
+      ).leftJoin(
+        'chatMessage.chatRoom',
+        'chatRoom',
+      )
+      .select([
+        'chatMessage.id',
+        'chatMessage.createdAt',
+        'chatMessage.updatedAt',
+        'chatMessage.text',
+        'chatRoom.id',
+        'author.id',
+        'author.createdAt',
+        'author.updatedAt',
+        'author.email',
+      ]);
+  }
+
+  async get(id: string): Promise<ChatMessage> {
+    let builder = this.repository.createQueryBuilder('chatMessage');
+    builder = ChatMessageService.exposeRelations(builder);
+    return builder
+      .where('chatMessage.id = :id', { id })
+      .getOne();
+  }
+
   async list(userId: string, chatRoomId: string): Promise<ChatMessage[]> {
     const chatRoomService = new ChatRoomService();
     const hasUserRights = await chatRoomService.hasUserRights(userId, chatRoomId);
@@ -27,22 +59,9 @@ export default class ChatMessageService extends Service<ChatMessage> {
       throw ApiError.fromServerError(new ServerError(50));
     }
 
-    return this.repository.createQueryBuilder('chatMessage')
-      .leftJoinAndSelect(
-        'chatMessage.author',
-        'author',
-      )
-      .where('chatMessage.chatRoomId = :chatRoomId', { chatRoomId })
-      .select([
-        'chatMessage.id',
-        'chatMessage.createdAt',
-        'chatMessage.updatedAt',
-        'chatMessage.text',
-        'author.id',
-        'author.createdAt',
-        'author.updatedAt',
-        'author.email',
-      ])
+    let builder = this.repository.createQueryBuilder('chatMessage');
+    builder = ChatMessageService.exposeRelations(builder);
+    return builder.where('chatMessage.chatRoomId = :chatRoomId', { chatRoomId })
       .addOrderBy('chatMessage.createdAt', 'ASC')
       .getMany();
   }
@@ -71,14 +90,15 @@ export default class ChatMessageService extends Service<ChatMessage> {
     );
 
     const socketIds = await userService.getSocketIds(chatRoomUserIds);
+    const newMessage = await this.get(message.id);
 
     for (let i = 0; i < socketIds.length; i++) {
       SocketServer
         .getInstance()
         .to(socketIds[i].socketId)
-        .emit(ISocketEvents.CHAT_NEW_MESSAGE, message);
+        .emit(ISocketEvents.CHAT_NEW_MESSAGE, newMessage);
     }
 
-    return message;
+    return newMessage;
   }
 }
