@@ -9,29 +9,40 @@ import UserService from '@/services/UserService';
 
 import serverConfig from '@/configs/serverConfig';
 
-export default async function initSocketIO(httpServer: http.Server) {
-  const io = new Server(httpServer, {
-    path: serverConfig.socketPath,
-    cors: {
-      origin: '*',
-    },
-  });
+export default class SocketServer {
+  private static socketServer: Server;
 
-  io.use((socket: IAuthorizedSocket, next) => {
-    const { token } = socket.handshake.auth;
+  static getInstance() {
+    return SocketServer.socketServer;
+  }
 
-    if (token) {
-      // eslint-disable-next-line no-param-reassign
-      socket.user = UserService.decodeToken(token) as User;
-    }
-    next();
-  });
+  static getSocket(socketId: string) {
+    return SocketServer.getInstance().of('/').sockets.get(socketId);
+  }
 
-  io.on('connection', async (socket: IAuthorizedSocket) => {
-    if (socket.user?.id) {
-      const userService = new UserService();
-      await userService.updateSocketId(socket.user.id, socket.id);
-    }
-  });
+  static init(httpServer: http.Server) {
+    SocketServer.socketServer = new Server(httpServer, {
+      path: serverConfig.socketPath,
+      cors: {
+        origin: '*',
+      },
+    });
+
+    SocketServer.socketServer.use((socket: IAuthorizedSocket, next) => {
+      const { token } = socket.handshake.auth;
+
+      if (token) {
+        // eslint-disable-next-line no-param-reassign
+        socket.user = UserService.decodeToken(token) as User;
+      }
+      next();
+    });
+
+    SocketServer.socketServer.on('connection', async (socket: IAuthorizedSocket) => {
+      if (socket.user?.id) {
+        const userService = new UserService();
+        await userService.updateSocketId(socket.user.id, socket.id);
+      }
+    });
+  }
 }
-

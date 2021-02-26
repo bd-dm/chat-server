@@ -71,4 +71,18 @@ export default class UserService extends Service<User> {
   async updateSocketId(userId: string, socketId: string): Promise<void> {
     await this.repository.update({ id: userId }, { socketId });
   }
+
+  async getSocketId(userId: string): Promise<string> {
+    const user = await this.repository.findOne({ id: userId }, { select: ['id', 'socketId'] });
+
+    return user.socketId;
+  }
+
+  async getSocketIds(userIds: string[]): Promise<Partial<User>[]> {
+    return this.repository
+      .createQueryBuilder('user')
+      .where('user.id IN (:...ids)', { ids: userIds })
+      .select(['user.id', 'user.socketId'])
+      .getMany();
+  }
 }

@@ -9,7 +9,7 @@ import { createServer } from 'http';
 import { createConnection } from 'typeorm';
 
 import initApolloServer from '@/api/apollo';
-import initSocketIO from '@/api/sockets';
+import SocketServer from '@/api/sockets';
 
 import * as middlewares from '@/middlewares';
 
@@ -27,7 +27,7 @@ const main = async () => {
   app.use(cors());
 
   await initApolloServer(app);
-  await initSocketIO(httpServer);
+  SocketServer.init(httpServer);
 
   app.use('/*', middlewares.notfound());
   app.use(middlewares.error());
