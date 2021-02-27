@@ -89,9 +89,28 @@ mutation ChatCreate($data: ChatCreateInput!) {
 }
 `;
 
+const chatListQuery = `
+query ChatList {
+  chatList {
+    id
+    createdAt
+    updatedAt
+    name
+    users {
+      id
+      createdAt
+      updatedAt
+      email
+    }
+  }
+}
+`;
+
 jest.setTimeout(10000);
 
 describe('Api:chatCreate [mutation]', () => {
+  const roomName = 'All users party!';
+
   it('Has users list', async () => {
     expect(users).toBeDefined();
     expect(users.length).toBe(USERS_COUNT);
@@ -105,7 +124,6 @@ describe('Api:chatCreate [mutation]', () => {
 
   it('Creates chat, sends chat to clients', async () => {
     const creatorUser = users[0];
-    const roomName = 'All users party!';
 
     ioClient.on(ISocketEvents.CHAT_NEW_ROOM, (data: any) => {
       expect(data).toBeDefined();
@@ -132,5 +150,21 @@ describe('Api:chatCreate [mutation]', () => {
     });
     expect(dbChatRoom).toBeDefined();
     expect(dbChatRoom.id).toBeDefined();
+  });
+
+  it('Lists chats of user', async () => {
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+
+      const response = await gCall({
+        source: chatListQuery,
+        contextValue: getUserContext(user.token),
+      });
+
+      expect(response?.errors).toBeUndefined();
+      expect(response?.data?.chatList).toBeDefined();
+      expect(response?.data?.chatList[0]).toBeDefined();
+      expect(response?.data?.chatList[0].name).toBe(roomName);
+    }
   });
 });
