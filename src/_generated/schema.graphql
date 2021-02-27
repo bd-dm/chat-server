@@ -7,16 +7,21 @@ type Query {
 
 type ChatRoom {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   name: String!
   users: [User!]!
 }
 
+"""
+The javascript `Date` as string. Type represents date and time as the ISO Date string.
+"""
+scalar DateTime
+
 type User {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   email: String!
   userToChatRooms: [UserToChatRoom!]!
   chatMessages: [ChatMessage!]!
@@ -24,8 +29,8 @@ type User {
 
 type UserToChatRoom {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   userId: String!
   chatRoomId: String!
   role: String!
@@ -35,8 +40,8 @@ type UserToChatRoom {
 
 type ChatMessage {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   text: String!
   author: User!
   chatRoom: ChatRoom!
@@ -52,8 +57,8 @@ type PaginatedPageMeta {
 }
 
 input PaginatedInput {
-  initTimestamp: Float!
-  skip: Float!
+  initTimestamp: Float
+  offset: Float!
   limit: Float!
 }
 

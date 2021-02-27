@@ -1,7 +1,11 @@
 import * as faker from 'faker';
 import jwt from 'jsonwebtoken';
+import { Connection, DeepPartial } from 'typeorm';
 
 import serverConfig from '../src/configs/serverConfig';
+import { IContext } from '../src/definitions';
+import { User } from '../src/entities';
+import UserService from '../src/services/UserService';
 
 interface IGenerateUserInput {
   emailFn?: () => string;
@@ -15,7 +19,7 @@ interface IGenerateUsersInput extends IGenerateUserInput{
 export const generateUser = ({
   emailFn = faker.internet.email,
   passwordFn = faker.internet.password,
-}: IGenerateUserInput) => ({
+}: IGenerateUserInput = {}) => ({
   email: emailFn(),
   password: passwordFn(),
 });
@@ -32,5 +36,29 @@ export const generateUsers = ({
 
   return users;
 };
+
+export const createUserAndGetToken = async (
+  connection: Connection,
+  data?: Partial<User>,
+): Promise<string> => {
+  const userData = data || generateUser();
+  const repository = connection.getRepository(User);
+  const user = await repository.save(userData);
+
+  return generateJwt(user.id);
+};
+
+export const getUserContext = (token: string): DeepPartial<IContext> => {
+  const decodedUser = verifyJwt(token) as Partial<User>;
+
+  return {
+    req: {
+      user: decodedUser,
+    },
+    user: decodedUser,
+  };
+};
+
+export const generateJwt = (userId: string) => UserService.getTokenById(userId);
 
 export const verifyJwt = (token: string) => jwt.verify(token, serverConfig.jwtAuthSecret);

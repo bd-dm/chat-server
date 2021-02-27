@@ -6,7 +6,11 @@ import { Connection } from 'typeorm';
 import testConnection from '@/../__test-utils__/testConnection';
 
 import gCall from '../../../../__test-utils__/apiCall';
-import { generateUser, generateUsers, verifyJwt } from '../../../../__test-utils__/users';
+import {
+  generateUser,
+  generateUsers,
+  getUserContext,
+} from '../../../../__test-utils__/users';
 import { User } from '../../../../src/entities';
 import PasswordHelper from '../../../../src/lib/helpers/PasswordHelper';
 
@@ -20,21 +24,21 @@ afterAll(async () => {
   await connection.close();
 });
 
-const signupMutation = `
-mutation Signup($data: UserSignupInput!) {
-  signup(data: $data)
+const userSignupMutation = `
+mutation UserSignup($data: UserSignupInput!) {
+  userSignup(data: $data)
 }
 `;
 
-const loginQuery = `
-query Login($data: UserLoginInput!) {
-  login(data: $data)
+const userLoginQuery = `
+query UserLogin($data: UserLoginInput!) {
+  userLogin(data: $data)
 }
 `;
 
-const getCurrentUserQuery = `
-query GetCurrentUser {
-  getCurrentUser {
+const userGetCurrentQuery = `
+query UserGetCurrent {
+  userGetCurrent {
     id
     email
   }
@@ -54,23 +58,32 @@ const userTokens: IUserToken[] = [];
 
 jest.setTimeout(10000);
 
-describe('Api:user.signup [mutation]', () => {
+describe('Api:userSignup [mutation]', () => {
+  it('Has database connection', async () => {
+    expect(connection).toBeDefined();
+    expect(connection.isConnected).toBe(true);
+  });
+
   it('Signs users up', async () => {
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
 
       const response = await gCall({
-        source: signupMutation,
+        source: userSignupMutation,
         variableValues: {
           data: user,
         },
       });
 
+      expect(response.errors).toBeUndefined();
+      expect(response.data).toBeDefined();
+
       const dbUser = await User.findOne({ email: user.email });
+      expect(dbUser).toBeDefined();
+
       const isPasswordValid = await PasswordHelper.validate(user.password, dbUser.password);
 
-      expect(typeof response.data.signup).toBe('string');
-      expect(dbUser).toBeDefined();
+      expect(typeof response.data.userSignup).toBe('string');
       expect(isPasswordValid).toBe(true);
     }
   });
@@ -78,7 +91,7 @@ describe('Api:user.signup [mutation]', () => {
   it('Not signs up users with password length < 6', async () => {
     const user = generateUser({ passwordFn: () => faker.internet.password(5) });
     const response = await gCall({
-      source: signupMutation,
+      source: userSignupMutation,
       variableValues: {
         data: user,
       },
@@ -97,7 +110,7 @@ describe('Api:user.signup [mutation]', () => {
     for (let i = 0; i < wrongEmailUsers.length; i++) {
       const user = wrongEmailUsers[i];
       const response = await gCall({
-        source: signupMutation,
+        source: userSignupMutation,
         variableValues: {
           data: user,
         },
@@ -109,7 +122,7 @@ describe('Api:user.signup [mutation]', () => {
   });
 });
 
-describe('Api:user.login [query]', () => {
+describe('Api:userLogin [query]', () => {
   it('Lets users log in and checks password the right way', async () => {
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
@@ -118,7 +131,7 @@ describe('Api:user.login [query]', () => {
       const isPasswordValid = await PasswordHelper.validate(user.password, dbUser.password);
 
       const response = await gCall({
-        source: loginQuery,
+        source: userLoginQuery,
         variableValues: {
           data: user,
         },
@@ -126,16 +139,16 @@ describe('Api:user.login [query]', () => {
 
       userTokens.push({
         id: dbUser.id,
-        token: response.data.login,
+        token: response.data.userLogin,
       });
 
-      expect(typeof response.data.login).toBe('string');
+      expect(typeof response.data.userLogin).toBe('string');
       expect(isPasswordValid).toBe(true);
     }
   });
 });
 
-describe('Api:user.getCurrentUser [query]', () => {
+describe('Api:userGetCurrent [query]', () => {
   it('Fetches current user and decodes jwt token right', async () => {
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
@@ -143,20 +156,15 @@ describe('Api:user.getCurrentUser [query]', () => {
       const dbUser = await User.findOne({ email: user.email });
       const userToken = userTokens.find((el) => el.id === dbUser.id).token;
 
-      const decodedUser = verifyJwt(userToken) as Partial<User>;
+      expect(typeof userToken).toBe('string');
 
       const response = await gCall({
-        source: getCurrentUserQuery,
-        contextValue: {
-          req: {
-            user: decodedUser,
-          },
-          user: decodedUser,
-        },
+        source: userGetCurrentQuery,
+        contextValue: getUserContext(userToken),
       });
 
       expect(response.errors).toBeUndefined();
-      expect(response.data.getCurrentUser).toMatchObject({
+      expect(response.data.userGetCurrent).toMatchObject({
         id: dbUser.id,
         email: dbUser.email,
       });
