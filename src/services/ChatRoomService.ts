@@ -112,11 +112,12 @@ export default class ChatRoomService extends Service<ChatRoom> {
     await manager.save(userToChatRoomEntities);
 
     // Оповещаем сокеты пользователей
-    const socketIds = await userService.getSocketIds(userList.map((user) => user.id));
-    for (let i = 0; i < socketIds.length; i++) {
+    const usersWithSockets = await userService.getSocketIds(userList.map((user) => user.id));
+
+    for (let i = 0; i < usersWithSockets.filter((user) => !!user.socketId).length; i++) {
       SocketServer
         .getInstance()
-        .to(socketIds[i].socketId)
+        .to(usersWithSockets[i].socketId)
         .emit(ISocketEvents.CHAT_NEW_ROOM, chatRoomResult);
     }
 
