@@ -6,7 +6,6 @@ import {
   Column,
   Entity,
   OneToMany,
-  RelationId,
 } from 'typeorm';
 
 import { UserToChatRoom } from '@/entities/User/UserToChatRoom';
@@ -27,9 +26,6 @@ export class ChatRoom extends BaseEntity {
   users(): User[] {
     return this.userToChatRooms.map((userToChatRooms) => userToChatRooms.user);
   }
-
-  @RelationId((chatRoom: ChatRoom) => chatRoom.chatMessages)
-  chatMessageIds?: string[]
 
   @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.chatRoom)
   chatMessages?: ChatMessage[];

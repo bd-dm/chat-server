@@ -16,11 +16,11 @@ export abstract class BaseEntity extends OrmBaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => String)
+  @Field(() => Date)
   @CreateDateColumn({ update: false })
   createdAt: string | Date;
 
-  @Field(() => String)
+  @Field(() => Date)
   @UpdateDateColumn({ update: false })
   updatedAt: string | Date;
 }
