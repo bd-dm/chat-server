@@ -12,6 +12,11 @@ interface IGenerateUserInput {
   passwordFn?: () => string;
 }
 
+export interface IUserWithToken {
+  data: User;
+  token: string;
+}
+
 interface IGenerateUsersInput extends IGenerateUserInput{
   count: number;
 }
@@ -37,15 +42,18 @@ export const generateUsers = ({
   return users;
 };
 
-export const createUserAndGetToken = async (
+export const createAndGetUser = async (
   connection: Connection,
   data?: Partial<User>,
-): Promise<string> => {
+): Promise<IUserWithToken> => {
   const userData = data || generateUser();
   const repository = connection.getRepository(User);
   const user = await repository.save(userData);
 
-  return generateJwt(user.id);
+  return {
+    data: user,
+    token: generateJwt(user.id),
+  };
 };
 
 export const getUserContext = (token: string): DeepPartial<IContext> => {
