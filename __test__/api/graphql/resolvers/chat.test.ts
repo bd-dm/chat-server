@@ -1,36 +1,75 @@
 import '@/../dotenv';
 
 import express from 'express';
-import { createServer } from 'http';
+import { createServer, Server } from 'http';
+import { Server as IOServer } from 'socket.io';
+import { io } from 'socket.io-client';
+import { Socket } from 'socket.io-client/build/socket';
 import { Connection } from 'typeorm';
 
 import testConnection from '@/../__test-utils__/testConnection';
 
 import gCall from '../../../../__test-utils__/apiCall';
 import {
-  createAndGetUser, getUserContext, IUserWithToken,
+  createAndGetUser, generateUser, getUserContext, IUserWithToken,
 } from '../../../../__test-utils__/users';
 import SocketServer from '../../../../src/api/sockets';
+import { ISocketEvents } from '../../../../src/definitions/socket';
 import { ChatRoom } from '../../../../src/entities';
 
 const USERS_COUNT = 10;
 let connection: Connection;
 const users: IUserWithToken[] = [];
 
+let ioServer: IOServer;
+let ioClient: Socket;
+let httpServer: Server;
+
 beforeAll(async () => {
   const app = express();
-  const httpServer = createServer(app);
-  SocketServer.init(httpServer);
+  httpServer = createServer(app);
 
   connection = await testConnection(true);
 
-  for (let i = 0; i < USERS_COUNT; i++) {
+  SocketServer.init(httpServer);
+  ioServer = SocketServer.getInstance();
+  await new Promise((resolve, reject) => {
+    httpServer
+      .listen(process.env.PORT, +process.env.HOST, () => {
+        resolve();
+      })
+      .on('error', reject);
+  });
+
+  ioClient = io(`ws://${process.env.HOST}:${process.env.PORT}`, {
+    path: process.env.SOCKET_PATH,
+    forceNew: true,
+    reconnection: false,
+    transports: ['websocket'],
+  });
+  await new Promise((resolve, reject) => {
+    ioClient.on('connect', () => {
+      resolve();
+    });
+    ioClient.on('connect_error', (e: Error) => {
+      reject(e);
+    });
+  });
+
+  users.push(await createAndGetUser(connection, {
+    ...generateUser(),
+    socketId: ioClient.id,
+  }));
+
+  for (let i = 0; i < USERS_COUNT - 1; i++) {
     users.push(await createAndGetUser(connection));
   }
 });
 
 afterAll(async () => {
   await connection.close();
+  ioServer.close();
+  httpServer.close();
 });
 
 const chatCreateMutation = `
@@ -64,9 +103,15 @@ describe('Api:chatCreate [mutation]', () => {
     }
   });
 
-  it('Creates chat', async () => {
+  it('Creates chat, sends chat to clients', async () => {
     const creatorUser = users[0];
     const roomName = 'All users party!';
+
+    ioClient.on(ISocketEvents.CHAT_NEW_ROOM, (data: any) => {
+      expect(data).toBeDefined();
+      expect(data.id).toBeDefined();
+      expect(data.name).toBeDefined();
+    });
 
     const response = await gCall({
       source: chatCreateMutation,

@@ -13,9 +13,17 @@ interface IGCallOptions {
 
 let schema: GraphQLSchema;
 
-export default async ({ source, variableValues, contextValue }: IGCallOptions) => {
+export default async ({ source, variableValues, contextValue }: IGCallOptions, delay = 0) => {
   if (!schema) {
     schema = await getGraphqlSchema();
+  }
+
+  if (delay) {
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, delay);
+    });
   }
 
   return graphql({
