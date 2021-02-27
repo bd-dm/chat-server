@@ -15,7 +15,12 @@ import {
   Resolver,
 } from 'type-graphql';
 
+import { ChatMessagePaginated } from '@/entities/ChatMessage';
 import { IUserToChatRoomRole } from '@/entities/User/UserToChatRoom';
+
+import { IPaginatorResult } from '@/definitions/pagination';
+
+import { PaginatedInput } from '@/api/graphql/inputTypes';
 
 import ChatMessageService from '@/services/ChatMessageService';
 import ChatRoomService from '@/services/ChatRoomService';
@@ -99,12 +104,13 @@ export default class ChatResolver {
   }
 
   @Authorized()
-  @Query(() => [ChatMessage])
+  @Query(() => ChatMessagePaginated)
   async chatMessageList(
     @Arg('data') data: ChatMessageListInput,
+    @Arg('pagination', { nullable: true }) pagination: PaginatedInput,
     @Ctx() ctx: IContext,
-  ): Promise<ChatMessage[]> {
+  ): Promise<IPaginatorResult<ChatMessage>> {
     const chatMessageService = new ChatMessageService();
-    return chatMessageService.list(ctx.user.id, data.chatRoomId);
+    return chatMessageService.list(ctx.user.id, data.chatRoomId, pagination);
   }
 }

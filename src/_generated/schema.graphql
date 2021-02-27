@@ -1,6 +1,6 @@
 type Query {
   chatList: [ChatRoom!]!
-  chatMessageList(data: ChatMessageListInput!): ChatMessage!
+  chatMessageList(pagination: PaginatedInput, data: ChatMessageListInput!): ChatMessagePaginated!
   userLogin(data: UserLoginInput!): String!
   userGetCurrent: User
 }
@@ -11,8 +11,6 @@ type ChatRoom {
   updatedAt: String!
   name: String!
   users: [User!]!
-  chatMessageIds: [String!]!
-  chatMessages: [ChatMessage!]!
 }
 
 type User {
@@ -42,6 +40,21 @@ type ChatMessage {
   text: String!
   author: User!
   chatRoom: ChatRoom!
+}
+
+type ChatMessagePaginated {
+  data: [ChatMessage!]!
+  pageMeta: PaginatedPageMeta!
+}
+
+type PaginatedPageMeta {
+  hasMore: Boolean!
+}
+
+input PaginatedInput {
+  initTimestamp: Float!
+  skip: Float!
+  limit: Float!
 }
 
 input ChatMessageListInput {

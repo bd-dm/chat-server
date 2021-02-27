@@ -1,7 +1,9 @@
 import { getRepository, Repository, SelectQueryBuilder } from 'typeorm';
 
+import { IPaginatorParams, IPaginatorResult } from '@/definitions/pagination';
 import { ISocketEvents } from '@/definitions/socket';
 
+import { Paginator } from '@/lib/classes/Paginator';
 import Service from '@/lib/classes/Service';
 import { ServerError } from '@/lib/utils';
 
@@ -51,7 +53,14 @@ export default class ChatMessageService extends Service<ChatMessage> {
       .getOne();
   }
 
-  async list(userId: string, chatRoomId: string): Promise<ChatMessage[]> {
+  async list(
+    userId: string,
+    chatRoomId: string,
+    paginationParams: IPaginatorParams = {
+      limit: 30,
+      offset: 0,
+    },
+  ): Promise<IPaginatorResult<ChatMessage>> {
     const chatRoomService = new ChatRoomService();
     const hasUserRights = await chatRoomService.hasUserRights(userId, chatRoomId);
 
@@ -60,10 +69,17 @@ export default class ChatMessageService extends Service<ChatMessage> {
     }
 
     let builder = this.repository.createQueryBuilder('chatMessage');
+
     builder = ChatMessageService.exposeRelations(builder);
-    return builder.where('chatMessage.chatRoomId = :chatRoomId', { chatRoomId })
-      .addOrderBy('chatMessage.createdAt', 'ASC')
-      .getMany();
+    builder = builder
+      .where('chatMessage.chatRoomId = :chatRoomId', { chatRoomId })
+      .addOrderBy('chatMessage.createdAt', 'DESC');
+
+    const paginator = new Paginator(builder);
+
+    return paginator.paginate({
+      paginationParams,
+    });
   }
 
   async create(userId: string, data: Partial<ChatMessage>): Promise<ChatMessage> {

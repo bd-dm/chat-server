@@ -28,11 +28,9 @@ export class ChatRoom extends BaseEntity {
     return this.userToChatRooms.map((userToChatRooms) => userToChatRooms.user);
   }
 
-  @Field(() => [String])
   @RelationId((chatRoom: ChatRoom) => chatRoom.chatMessages)
   chatMessageIds?: string[]
 
-  @Field(() => [ChatMessage])
   @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.chatRoom)
   chatMessages?: ChatMessage[];
 }

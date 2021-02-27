@@ -140,14 +140,6 @@ export default class ChatRoomService extends Service<ChatRoom> {
         'userToChatRoom.user',
         'user',
       )
-      .leftJoin(
-        'chatRoom.chatMessages',
-        'chatMessage',
-      )
-      .leftJoin(
-        'chatMessage.author',
-        'chatMessageAuthor',
-      )
       .addSelect([
         'chatRoom.id',
         'chatRoom.createdAt',
@@ -162,15 +154,6 @@ export default class ChatRoomService extends Service<ChatRoom> {
         'user.createdAt',
         'user.updatedAt',
         'user.email',
-        'chatMessageAuthor.id',
-        'chatMessageAuthor.createdAt',
-        'chatMessageAuthor.updatedAt',
-        'chatMessageAuthor.email',
-        'chatMessage.id',
-        'chatMessage.createdAt',
-        'chatMessage.updatedAt',
-        'chatMessage.text',
-        'chatMessage.author',
       ]);
 
     return qb.getMany();

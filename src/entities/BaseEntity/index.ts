@@ -4,7 +4,7 @@ import {
   ObjectType,
 } from 'type-graphql';
 import {
-  BaseEntity as OrmBaseEntity,
+  BaseEntity as OrmBaseEntity, Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -23,4 +23,11 @@ export abstract class BaseEntity extends OrmBaseEntity {
   @Field(() => String)
   @UpdateDateColumn({ update: false })
   updatedAt: string | Date;
+}
+
+@ObjectType()
+export abstract class PaginatedEntity extends BaseEntity {
+  @Field()
+  @Column({ generated: 'increment' })
+  serial: number;
 }
