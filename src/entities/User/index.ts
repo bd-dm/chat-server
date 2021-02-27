@@ -22,11 +22,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   socketId?: string;
 
-  @Field(() => [UserToChatRoom])
   @OneToMany(() => UserToChatRoom, (userToChatRoom) => userToChatRoom.user)
   userToChatRooms?: UserToChatRoom[];
 
-  @Field(() => [ChatMessage])
   @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.author)
   chatMessages?: ChatMessage[];
 }
