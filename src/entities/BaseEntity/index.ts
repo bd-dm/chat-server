@@ -11,11 +11,14 @@ import {
 } from 'typeorm';
 
 @ObjectType()
-export abstract class BaseEntity extends OrmBaseEntity {
+export abstract class BaseEntityId extends OrmBaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
+}
 
+@ObjectType()
+export abstract class BaseEntity extends BaseEntityId {
   @Field(() => Date)
   @CreateDateColumn({ update: false })
   createdAt: string | Date;

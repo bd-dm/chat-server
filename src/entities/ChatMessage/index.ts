@@ -9,6 +9,8 @@ import {
   RelationId,
 } from 'typeorm';
 
+import { BaseEntityId } from '@/entities/BaseEntity';
+
 import { IPaginatorResult } from '@/definitions/pagination';
 
 import { PaginatedPageMeta } from '@/api/graphql/objectTypes';
@@ -32,7 +34,7 @@ export class ChatMessage extends BaseEntity {
   @RelationId((chatMessage:ChatMessage) => chatMessage.chatRoom)
   chatRoomId?: string;
 
-  @Field(() => ChatRoom)
+  @Field(() => BaseEntityId)
   @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.chatMessages)
   chatRoom?: ChatRoom;
 }
