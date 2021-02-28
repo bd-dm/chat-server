@@ -1,6 +1,7 @@
 import '@/../dotenv';
 
 import express from 'express';
+import * as faker from 'faker';
 import { createServer, Server } from 'http';
 import { Server as IOServer } from 'socket.io';
 import { io } from 'socket.io-client';
@@ -106,10 +107,53 @@ query ChatList {
 }
 `;
 
+const chatMessageSendMutation = `
+mutation ChatMessageSend($data: ChatMessageSendInput!) {
+  chatMessageSend(data: $data) {
+    id
+    createdAt
+    updatedAt
+    text
+    author {
+      id
+      createdAt
+      updatedAt
+      email
+    }
+    chatRoom {
+      id
+    }
+  }
+}
+`;
+
+const chatMessageListMutation = `
+query ChatMessageList($data: ChatMessageListInput!) {
+  chatMessageList(data: $data) {
+    data {
+      id
+      createdAt
+      updatedAt
+      text
+      author {
+        id
+        createdAt
+        updatedAt
+        email
+      }
+      chatRoom {
+        id
+      }
+    }
+  }
+}
+`;
+
 jest.setTimeout(10000);
 
 describe('Api:chatCreate [mutation]', () => {
   const roomName = 'All users party!';
+  let partyRoomId: string;
 
   it('Has users list', async () => {
     expect(users).toBeDefined();
@@ -122,14 +166,8 @@ describe('Api:chatCreate [mutation]', () => {
     }
   });
 
-  it('Creates chat, sends chat to clients', async () => {
+  it('Creates chat', async () => {
     const creatorUser = users[0];
-
-    ioClient.on(ISocketEvents.CHAT_NEW_ROOM, (data: any) => {
-      expect(data).toBeDefined();
-      expect(data.id).toBeDefined();
-      expect(data.name).toBeDefined();
-    });
 
     const response = await gCall({
       source: chatCreateMutation,
@@ -146,10 +184,88 @@ describe('Api:chatCreate [mutation]', () => {
     expect(response?.data?.chatCreate).toBeDefined();
 
     const dbChatRoom = await ChatRoom.findOne({
-      name: roomName,
+      id: response?.data?.chatCreate.id,
     });
     expect(dbChatRoom).toBeDefined();
     expect(dbChatRoom.id).toBeDefined();
+
+    partyRoomId = dbChatRoom.id;
+  });
+
+  it('Sends new chat rooms to clients', (done) => {
+    const creatorUser = users[0];
+
+    const onNewRoom = (data: any) => {
+      expect(data).toBeDefined();
+      expect(data.id).toBeDefined();
+      expect(data.name).toBeDefined();
+
+      done();
+    };
+
+    ioClient.once(ISocketEvents.CHAT_NEW_ROOM, onNewRoom);
+
+    gCall({
+      source: chatCreateMutation,
+      variableValues: {
+        data: {
+          name: roomName,
+          userIds: users.map((user) => user.data.id),
+        },
+      },
+      contextValue: getUserContext(creatorUser.token),
+    }).then();
+  });
+
+  it('Creates chat with name length = 255', async () => {
+    const creatorUser = users[0];
+    const response = await gCall({
+      source: chatCreateMutation,
+      variableValues: {
+        data: {
+          name: 's'.repeat(255),
+          userIds: users.map((user) => user.data.id),
+        },
+      },
+      contextValue: getUserContext(creatorUser.token),
+    });
+
+    expect(response?.errors).toBeUndefined();
+    expect(response?.data?.chatCreate).toBeDefined();
+  });
+
+  it('Not creates chat with name length > 255', async () => {
+    const creatorUser = users[0];
+    const response = await gCall({
+      source: chatCreateMutation,
+      variableValues: {
+        data: {
+          name: 's'.repeat(256),
+          userIds: users.map((user) => user.data.id),
+        },
+      },
+      contextValue: getUserContext(creatorUser.token),
+    });
+
+    expect(response?.errors).toBeDefined();
+    expect(response?.data?.chatCreate).toBeUndefined();
+  });
+
+  it('Not creates chat with users.length < 2', async () => {
+    const creatorUser = users[0];
+    const response = await gCall({
+      source: chatCreateMutation,
+      variableValues: {
+        data: {
+          name: roomName,
+          userIds: [users[1]],
+        },
+      },
+      contextValue: getUserContext(creatorUser.token),
+    });
+
+    expect(response?.errors).toBeDefined();
+    expect(response?.data?.chatCreate).toBeUndefined();
   });
 
   it('Lists chats of user', async () => {
@@ -162,9 +278,68 @@ describe('Api:chatCreate [mutation]', () => {
       });
 
       expect(response?.errors).toBeUndefined();
-      expect(response?.data?.chatList).toBeDefined();
-      expect(response?.data?.chatList[0]).toBeDefined();
       expect(response?.data?.chatList[0].name).toBe(roomName);
     }
+  });
+
+  it('Lets user send message', async () => {
+    const user = users[0];
+
+    const response = await gCall({
+      source: chatMessageSendMutation,
+      variableValues: {
+        data: {
+          text: faker.lorem.text(),
+          chatRoomId: partyRoomId,
+        },
+      },
+      contextValue: getUserContext(user.token),
+    });
+
+    expect(response?.errors).toBeUndefined();
+    expect(response?.data?.chatMessageSend).toBeDefined();
+  });
+
+  it('Sends new messages to user\'s sockets', (done) => {
+    const user = users[0];
+
+    const onNewMessage = (data: any) => {
+      expect(data).toBeDefined();
+      expect(data.id).toBeDefined();
+      expect(data.text).toBeDefined();
+      done();
+    };
+
+    ioClient.on(ISocketEvents.CHAT_NEW_MESSAGE, onNewMessage);
+
+    gCall({
+      source: chatMessageSendMutation,
+      variableValues: {
+        data: {
+          text: faker.lorem.text(),
+          chatRoomId: partyRoomId,
+        },
+      },
+      contextValue: getUserContext(user.token),
+    }).then();
+  });
+
+  it('Lets user list messages in chat', async () => {
+    const user = users[0];
+
+    const response = await gCall({
+      source: chatMessageListMutation,
+      variableValues: {
+        data: {
+          chatRoomId: partyRoomId,
+        },
+      },
+      contextValue: getUserContext(user.token),
+    });
+
+    expect(response?.errors).toBeUndefined();
+    expect(response?.data?.chatMessageList).toBeDefined();
+    expect(response?.data?.chatMessageList.data.length > 0).toBe(true);
+    expect(response?.data?.chatMessageList.data[0].text).toBeDefined();
   });
 });
