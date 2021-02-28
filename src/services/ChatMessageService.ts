@@ -1,4 +1,9 @@
-import { getRepository, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  DeepPartial,
+  getRepository,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 
 import { IPaginatorParams, IPaginatorResult } from '@/definitions/pagination';
 import { ISocketEvents } from '@/definitions/socket';
@@ -11,6 +16,7 @@ import ApiError from '@/lib/utils/ApiError';
 
 import SocketServer from '@/api/sockets';
 
+import ChatAttachmentService from '@/services/ChatAttachmentService';
 import ChatRoomService from '@/services/ChatRoomService';
 import UserService from '@/services/UserService';
 
@@ -28,9 +34,14 @@ export default class ChatMessageService extends Service<ChatMessage> {
       .leftJoin(
         'chatMessage.author',
         'author',
-      ).leftJoin(
+      )
+      .leftJoin(
         'chatMessage.chatRoom',
         'chatRoom',
+      )
+      .leftJoin(
+        'chatMessage.chatAttachments',
+        'chatAttachment',
       )
       .select([
         'chatMessage.id',
@@ -38,6 +49,9 @@ export default class ChatMessageService extends Service<ChatMessage> {
         'chatMessage.updatedAt',
         'chatMessage.text',
         'chatRoom.id',
+        'chatAttachment.id',
+        'chatAttachment.createdAt',
+        'chatAttachment.updatedAt',
         'author.id',
         'author.createdAt',
         'author.updatedAt',
@@ -83,7 +97,24 @@ export default class ChatMessageService extends Service<ChatMessage> {
   }
 
   async create(userId: string, data: Partial<ChatMessage>): Promise<ChatMessage> {
-    const message = await this.repository.save({
+    const userService = new UserService();
+    const chatRoomService = new ChatRoomService();
+    const chatAttachmentService = new ChatAttachmentService();
+
+    const chatRoom = await chatRoomService.get(data.chatRoomId);
+    if (!chatRoom) {
+      throw ApiError.fromServerError(new ServerError(60));
+    }
+
+    const chatRoomUserIds = chatRoom.userToChatRooms.map(
+      (userToChatRoom) => userToChatRoom.userId,
+    );
+
+    if (!chatRoomUserIds.includes(userId)) {
+      throw ApiError.fromServerError(new ServerError(90));
+    }
+
+    const messageBody: DeepPartial<ChatMessage> = {
       text: data.text,
       chatRoom: {
         id: data.chatRoomId,
@@ -91,19 +122,36 @@ export default class ChatMessageService extends Service<ChatMessage> {
       author: {
         id: userId,
       },
-    });
+
+    };
+
+    if (data.chatAttachmentIds) {
+      messageBody.chatAttachments = [];
+
+      for (let i = 0; i < data.chatAttachmentIds.length; i++) {
+        const chatAttachmentId = data.chatAttachmentIds[i];
+        const hasUserRights = await chatAttachmentService.hasUserRights(userId, chatAttachmentId);
+
+        if (!hasUserRights) {
+          throw ApiError.fromServerError(new ServerError(100));
+        }
+
+        const isAlreadyAttached = await chatAttachmentService.isAttachedToMessage(chatAttachmentId);
+        if (isAlreadyAttached) {
+          throw ApiError.fromServerError(new ServerError(100));
+        }
+
+        messageBody.chatAttachments.push({
+          id: chatAttachmentId,
+        });
+      }
+    }
+
+    const message = await this.repository.save(messageBody);
 
     if (!message) {
       throw ApiError.fromServerError(new ServerError(60));
     }
-
-    const userService = new UserService();
-    const chatRoomService = new ChatRoomService();
-
-    const chatRoom = await chatRoomService.get(data.chatRoomId);
-    const chatRoomUserIds = chatRoom.userToChatRooms.map(
-      (userToChatRoom) => userToChatRoom.userId,
-    );
 
     const socketIds = await userService.getSocketIds(chatRoomUserIds);
     const newMessage = await this.get(message.id);

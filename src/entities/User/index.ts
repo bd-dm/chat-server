@@ -7,7 +7,7 @@ import {
 
 import { UserToChatRoom } from '@/entities/User/UserToChatRoom';
 
-import { BaseEntity, ChatMessage } from '@/entities';
+import { BaseEntity, ChatAttachment, ChatMessage } from '@/entities';
 
 @ObjectType()
 @Entity()
@@ -27,4 +27,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => ChatMessage, (chatMessage) => chatMessage.author)
   chatMessages?: ChatMessage[];
+
+  @OneToMany(() => ChatAttachment, (chatAttachment) => chatAttachment.user)
+  chatAttachments?: ChatMessage[];
 }

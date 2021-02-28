@@ -21,7 +21,9 @@ import { IUserToChatRoomRole } from '@/entities/User/UserToChatRoom';
 import { IPaginatorResult } from '@/definitions/pagination';
 
 import { PaginatedInput } from '@/api/graphql/inputTypes';
+import { FileUri } from '@/api/graphql/objectTypes';
 
+import ChatAttachmentService from '@/services/ChatAttachmentService';
 import ChatMessageService from '@/services/ChatMessageService';
 import ChatRoomService from '@/services/ChatRoomService';
 
@@ -50,6 +52,9 @@ export class ChatMessageSendInput {
   @Field()
   @MinLength(1)
   text: string;
+
+  @Field(() => [String], { nullable: true })
+  chatAttachmentIds: string[];
 }
 
 @InputType()
@@ -92,6 +97,15 @@ export default class ChatResolver {
     const chatRoomBasic = await chatRoomService.create(data, userList);
 
     return chatRoomService.get(chatRoomBasic.id);
+  }
+
+  @Authorized()
+  @Query(() => FileUri)
+  async chatMessageGetAttachmentUploadUri(
+    @Ctx() ctx: IContext,
+  ): Promise<FileUri> {
+    const chatAttachmentService = new ChatAttachmentService();
+    return chatAttachmentService.create(ctx.user.id);
   }
 
   @Authorized()
