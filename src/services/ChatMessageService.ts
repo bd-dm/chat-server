@@ -1,14 +1,13 @@
 import {
-  DeepPartial,
-  getRepository,
-  Repository,
-  SelectQueryBuilder,
+  DeepPartial, getRepository, Repository, SelectQueryBuilder,
 } from 'typeorm';
 
 import { IPaginatorParams, IPaginatorResult } from '@/definitions/pagination';
+import { IS3ObjectKind } from '@/definitions/s3';
 import { ISocketEvents } from '@/definitions/socket';
 
 import { Paginator } from '@/lib/classes/Paginator';
+import { S3 } from '@/lib/classes/S3';
 import Service from '@/lib/classes/Service';
 import { ServerError } from '@/lib/utils';
 
@@ -19,6 +18,8 @@ import SocketServer from '@/api/sockets';
 import ChatAttachmentService from '@/services/ChatAttachmentService';
 import ChatRoomService from '@/services/ChatRoomService';
 import UserService from '@/services/UserService';
+
+import awsConfig from '@/configs/awsConfig';
 
 import { ChatMessage } from '@/entities';
 
@@ -139,6 +140,12 @@ export default class ChatMessageService extends Service<ChatMessage> {
         const isAlreadyAttached = await chatAttachmentService.isAttachedToMessage(chatAttachmentId);
         if (isAlreadyAttached) {
           throw ApiError.fromServerError(new ServerError(100));
+        }
+
+        const s3 = new S3(awsConfig);
+        const isFileExists = await s3.isObjectExists(IS3ObjectKind.ATTACHMENT, chatAttachmentId);
+        if (!isFileExists) {
+          throw ApiError.fromServerError(new ServerError(110));
         }
 
         messageBody.chatAttachments.push({

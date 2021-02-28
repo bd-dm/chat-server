@@ -14,7 +14,7 @@ module.exports = {
     'import/prefer-default-export': 0,
     'no-alert': 0,
     'no-console': 0,
-    'max-classes-per-file': ['error', 4],
+    'max-classes-per-file': ['error', 10],
     'no-restricted-globals': 0,
     'no-restricted-syntax': 0,
     'no-undef': 0,

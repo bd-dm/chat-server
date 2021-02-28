@@ -47,4 +47,8 @@ export default {
     status: 400,
     message: 'Неверное вложение',
   },
+  110: {
+    status: 400,
+    message: 'Не все вложения загружены',
+  },
 };

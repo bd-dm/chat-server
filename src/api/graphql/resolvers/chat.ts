@@ -1,7 +1,11 @@
 import {
+  ArrayMaxSize,
   ArrayMinSize,
   IsString,
-  IsUUID, MaxLength,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 import {
@@ -54,6 +58,7 @@ export class ChatMessageSendInput {
   text: string;
 
   @Field(() => [String], { nullable: true })
+  @ArrayMaxSize(5)
   chatAttachmentIds: string[];
 }
 
@@ -62,6 +67,14 @@ export class ChatMessageListInput {
   @Field()
   @IsUUID()
   chatRoomId: string;
+}
+
+@InputType()
+export class ChatMessageGetAttachmentUploadUrisInput {
+  @Field()
+  @Max(5)
+  @Min(1)
+  count: number;
 }
 
 @Resolver()
@@ -100,12 +113,20 @@ export default class ChatResolver {
   }
 
   @Authorized()
-  @Query(() => FileUri)
-  async chatMessageGetAttachmentUploadUri(
+  @Query(() => [FileUri])
+  async chatMessageGetAttachmentUploadUris(
+    @Arg('data') data: ChatMessageGetAttachmentUploadUrisInput,
     @Ctx() ctx: IContext,
-  ): Promise<FileUri> {
-    const chatAttachmentService = new ChatAttachmentService();
-    return chatAttachmentService.create(ctx.user.id);
+  ): Promise<FileUri[]> {
+    const results: FileUri[] = [];
+    for (let i = 0; i < data.count; i++) {
+      const chatAttachmentService = new ChatAttachmentService();
+      const item = await chatAttachmentService.create(ctx.user.id);
+
+      results.push(item);
+    }
+
+    return results;
   }
 
   @Authorized()
