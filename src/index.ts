@@ -8,6 +8,8 @@ import helmet from 'helmet';
 import { createServer } from 'http';
 import { createConnection } from 'typeorm';
 
+import RedisClient from '@/lib/classes/RedisClient';
+
 import initApolloServer from '@/api/apollo';
 import SocketServer from '@/api/sockets';
 
@@ -28,6 +30,7 @@ const main = async () => {
 
   await initApolloServer(app);
   SocketServer.init(httpServer);
+  RedisClient.init();
 
   app.use('/*', middlewares.notfound());
   app.use(middlewares.error());

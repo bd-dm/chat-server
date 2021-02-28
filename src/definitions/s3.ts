@@ -6,6 +6,7 @@ export interface IAwsConfig {
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
+  getUrlExpires: number;
   buckets: {
     attachments: string;
   };

@@ -1,5 +1,6 @@
 import { IAwsConfig, IAwsObject, IS3ObjectKind } from '@/definitions/s3';
 
+import RedisClient from '@/lib/classes/RedisClient';
 import { ServerError } from '@/lib/utils';
 
 import {
@@ -17,8 +18,8 @@ export class S3 {
 
   private readonly client: S3Client;
 
-  constructor(awsConfig: IAwsConfig) {
-    this.awsConfig = awsConfig;
+  constructor(config: IAwsConfig) {
+    this.awsConfig = config;
 
     this.client = this.getS3Client();
   }
@@ -51,7 +52,7 @@ export class S3 {
     };
   }
 
-  private async getPresignedUri(command: PutObjectCommand | GetObjectCommand) {
+  private async getPresignedUri(command: PutObjectCommand | GetObjectCommand): Promise<string> {
     const signedRequest = new S3RequestPresigner(this.client.config);
 
     const request = await createRequest(
@@ -63,7 +64,7 @@ export class S3 {
       await signedRequest.presign(
         request,
         {
-          expiresIn: 60 * 60 * 2,
+          expiresIn: this.awsConfig.getUrlExpires,
         },
       ),
     );
@@ -101,21 +102,37 @@ export class S3 {
     objectKind: IS3ObjectKind,
     objectId: string,
   ): Promise<IAwsObject> {
-    const head = await this.getObjectHead(objectKind, objectId);
+    try {
+      const KEY = `aws-object-uri:${objectKind}-${objectId}`;
 
-    const uri = await this.getPresignedUri(
-      new GetObjectCommand(
-        this.getClientParams(
-          objectKind,
-          objectId,
-        ),
-      ),
-    );
+      const cachedValue = await RedisClient.get(KEY);
 
-    return {
-      uri,
-      mime: head.ContentType,
-    };
+      let result = JSON.parse(cachedValue);
+
+      if (!cachedValue) {
+        const head = await this.getObjectHead(objectKind, objectId);
+
+        const url = await this.getPresignedUri(
+          new GetObjectCommand(
+            this.getClientParams(
+              objectKind,
+              objectId,
+            ),
+          ),
+        );
+
+        result = {
+          uri: url,
+          mime: head.ContentType,
+        };
+
+        await RedisClient.set(KEY, JSON.stringify(result), this.awsConfig.getUrlExpires);
+      }
+
+      return result;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async isObjectExists(
