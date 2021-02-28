@@ -16,7 +16,7 @@ import { BaseEntity, ChatMessage, User } from '@/entities';
 @Entity()
 export class ChatRoom extends BaseEntity {
   @Field(() => String)
-  @Column()
+  @Column({ length: 255 })
   name: string;
 
   @OneToMany(() => UserToChatRoom, (userToChatRoom) => userToChatRoom.chatRoom)

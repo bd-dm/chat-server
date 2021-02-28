@@ -1,7 +1,7 @@
 import {
   ArrayMinSize,
   IsString,
-  IsUUID,
+  IsUUID, MaxLength,
   MinLength,
 } from 'class-validator';
 import {
@@ -32,6 +32,7 @@ import { ChatMessage, ChatRoom } from '@/entities';
 export class ChatCreateInput {
   @Field()
   @MinLength(3)
+  @MaxLength(255)
   name: string;
 
   @Field(() => [String])
