@@ -31,6 +31,7 @@ import ChatAttachmentService from '@/services/ChatAttachmentService';
 import ChatMessageService from '@/services/ChatMessageService';
 import ChatRoomService from '@/services/ChatRoomService';
 
+import { CHAT_MESSAGE_ATTACHMENT } from '@/consts';
 import { IContext } from '@/definitions';
 import { ChatMessage, ChatRoom } from '@/entities';
 
@@ -58,7 +59,7 @@ export class ChatMessageSendInput {
   text: string;
 
   @Field(() => [String], { nullable: true })
-  @ArrayMaxSize(5)
+  @ArrayMaxSize(CHAT_MESSAGE_ATTACHMENT.MAX_FILES)
   chatAttachmentIds: string[];
 }
 
@@ -72,7 +73,7 @@ export class ChatMessageListInput {
 @InputType()
 export class ChatMessageGetAttachmentUploadUrisInput {
   @Field()
-  @Max(5)
+  @Max(CHAT_MESSAGE_ATTACHMENT.MAX_FILES)
   @Min(1)
   count: number;
 }
