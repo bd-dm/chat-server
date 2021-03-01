@@ -88,7 +88,8 @@ export default class ChatMessageService extends Service<ChatMessage> {
     builder = ChatMessageService.exposeRelations(builder);
     builder = builder
       .where('chatMessage.chatRoomId = :chatRoomId', { chatRoomId })
-      .addOrderBy('chatMessage.createdAt', 'DESC');
+      .addOrderBy('chatMessage.createdAt', 'DESC')
+      .addOrderBy('chatAttachment.createdAt', 'ASC');
 
     const paginator = new Paginator(builder);
 
@@ -167,7 +168,10 @@ export default class ChatMessageService extends Service<ChatMessage> {
       SocketServer
         .getInstance()
         .to(socketIds[i].socketId)
-        .emit(ISocketEvents.CHAT_NEW_MESSAGE, newMessage);
+        .emit(ISocketEvents.CHAT_NEW_MESSAGE, {
+          ...newMessage,
+          attachments: await newMessage.attachments(),
+        });
     }
 
     return newMessage;
