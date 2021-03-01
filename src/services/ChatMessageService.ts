@@ -88,8 +88,7 @@ export default class ChatMessageService extends Service<ChatMessage> {
     builder = ChatMessageService.exposeRelations(builder);
     builder = builder
       .where('chatMessage.chatRoomId = :chatRoomId', { chatRoomId })
-      .addOrderBy('chatMessage.createdAt', 'DESC')
-      .addOrderBy('chatAttachment.createdAt', 'ASC');
+      .orderBy('chatMessage.createdAt', 'DESC');
 
     const paginator = new Paginator(builder);
 

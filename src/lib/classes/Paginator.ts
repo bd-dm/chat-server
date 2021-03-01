@@ -15,9 +15,6 @@ export class Paginator<T> {
       rewriteWhere = false,
     } = options;
 
-    this.builder.limit(paginationParams.limit + 1);
-    this.builder.offset(paginationParams.offset);
-
     if (paginationParams.initTimestamp) {
       const where = {
         createdAt: LessThan(new Date(paginationParams.initTimestamp)),
@@ -29,6 +26,9 @@ export class Paginator<T> {
         this.builder.andWhere(new Brackets((qb) => qb.where(where)));
       }
     }
+
+    this.builder.skip(paginationParams.offset);
+    this.builder.take(paginationParams.limit + 1);
 
     const realData = await this.builder.getMany();
 
