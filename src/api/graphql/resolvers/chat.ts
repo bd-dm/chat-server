@@ -3,9 +3,7 @@ import {
   ArrayMinSize,
   IsString,
   IsUUID,
-  Max,
   MaxLength,
-  Min,
   MinLength,
 } from 'class-validator';
 import {
@@ -72,10 +70,10 @@ export class ChatMessageListInput {
 
 @InputType()
 export class ChatMessageGetAttachmentUploadUrisInput {
-  @Field()
-  @Max(CHAT_MESSAGE_ATTACHMENT.MAX_FILES)
-  @Min(1)
-  count: number;
+  @Field(() => [String])
+  @ArrayMaxSize(CHAT_MESSAGE_ATTACHMENT.MAX_FILES)
+  @ArrayMinSize(1)
+  names: string[];
 }
 
 @Resolver()
@@ -120,9 +118,11 @@ export default class ChatResolver {
     @Ctx() ctx: IContext,
   ): Promise<FileUri[]> {
     const results: FileUri[] = [];
-    for (let i = 0; i < data.count; i++) {
+    for (let i = 0; i < data.names.length; i++) {
       const chatAttachmentService = new ChatAttachmentService();
-      const item = await chatAttachmentService.create(ctx.user.id);
+      const item = await chatAttachmentService.create(ctx.user.id, {
+        name: data.names[i],
+      });
 
       results.push(item);
     }

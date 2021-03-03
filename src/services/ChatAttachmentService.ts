@@ -49,8 +49,9 @@ export default class ChatAttachmentService extends Service<ChatAttachment> {
     return !!chatAttachment;
   }
 
-  async create(userId: string): Promise<FileUri> {
+  async create(userId: string, data: Partial<ChatAttachment>): Promise<FileUri> {
     const chatAttachment = await this.repository.save({
+      ...data,
       user: {
         id: userId,
       },
@@ -64,6 +65,7 @@ export default class ChatAttachmentService extends Service<ChatAttachment> {
     return {
       id,
       uri,
+      name: chatAttachment.name,
     };
   }
 }

@@ -14,6 +14,9 @@ export class FileUri {
   id: string;
 
   @Field()
+  name: string;
+
+  @Field()
   uri: string;
 
   @Field({ nullable: true })

@@ -52,6 +52,7 @@ export class ChatMessage extends BaseEntity {
 
       files.push({
         id: attachments[i].id,
+        name: attachments[i].name,
         uri: object.uri,
         mime: object.mime,
       });

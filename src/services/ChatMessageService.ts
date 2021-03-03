@@ -51,6 +51,7 @@ export default class ChatMessageService extends Service<ChatMessage> {
         'chatMessage.text',
         'chatRoom.id',
         'chatAttachment.id',
+        'chatAttachment.name',
         'chatAttachment.createdAt',
         'chatAttachment.updatedAt',
         'author.id',
