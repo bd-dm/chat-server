@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 
-export default (dropSchema: boolean = true) => createConnection({
+export default (dropSchema: boolean = false) => createConnection({
   type: 'postgres',
   host: '127.0.0.1',
   port: 5432,

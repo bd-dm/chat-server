@@ -1,20 +1,16 @@
 import '@/../dotenv';
 
-import express from 'express';
 import * as faker from 'faker';
-import { createServer, Server } from 'http';
-import { Server as IOServer } from 'socket.io';
-import { io } from 'socket.io-client';
 import { Socket } from 'socket.io-client/build/socket';
 import { Connection } from 'typeorm';
 
 import testConnection from '@/../__test-utils__/testConnection';
 
 import gCall from '../../../../__test-utils__/apiCall';
+import testWebsockets from '../../../../__test-utils__/testWebsockets';
 import {
   createAndGetUser, generateUser, getUserContext, IUserWithToken,
 } from '../../../../__test-utils__/users';
-import SocketServer from '../../../../src/api/sockets';
 import { ISocketEvents } from '../../../../src/definitions/socket';
 import { ChatRoom } from '../../../../src/entities';
 
@@ -22,45 +18,26 @@ const USERS_COUNT = 10;
 let connection: Connection;
 const users: IUserWithToken[] = [];
 
-let ioServer: IOServer;
 let ioClient: Socket;
-let httpServer: Server;
+let closeWsConnection: () => void;
 
 beforeAll(async () => {
-  const app = express();
-  httpServer = createServer(app);
+  connection = await testConnection();
 
-  connection = await testConnection(true);
+  const {
+    client,
+    closeServer,
+  } = await testWebsockets();
 
-  SocketServer.init(httpServer);
-  ioServer = SocketServer.getInstance();
-  await new Promise((resolve, reject) => {
-    httpServer
-      .listen(process.env.PORT, +process.env.HOST, () => {
-        resolve();
-      })
-      .on('error', reject);
-  });
+  closeWsConnection = closeServer;
+  ioClient = client;
 
-  ioClient = io(`ws://${process.env.HOST}:${process.env.PORT}`, {
-    path: process.env.SOCKET_PATH,
-    forceNew: true,
-    reconnection: false,
-    transports: ['websocket'],
-  });
-  await new Promise((resolve, reject) => {
-    ioClient.on('connect', () => {
-      resolve();
-    });
-    ioClient.on('connect_error', (e: Error) => {
-      reject(e);
-    });
-  });
-
-  users.push(await createAndGetUser(connection, {
-    ...generateUser(),
-    socketId: ioClient.id,
-  }));
+  users.push(
+    await createAndGetUser(connection, {
+      ...generateUser(),
+      socketId: ioClient.id,
+    }),
+  );
 
   for (let i = 0; i < USERS_COUNT - 1; i++) {
     users.push(await createAndGetUser(connection));
@@ -69,8 +46,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await connection.close();
-  ioServer.close();
-  httpServer.close();
+  await closeWsConnection();
 });
 
 const chatCreateMutation = `

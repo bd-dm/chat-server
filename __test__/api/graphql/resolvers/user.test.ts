@@ -17,7 +17,7 @@ import PasswordHelper from '../../../../src/lib/helpers/PasswordHelper';
 let connection: Connection;
 
 beforeAll(async () => {
-  connection = await testConnection(true);
+  connection = await testConnection();
 });
 
 afterAll(async () => {
